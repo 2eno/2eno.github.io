@@ -23,10 +23,10 @@ const apps = defineCollection({
     z.object({
       /** Anzeigename der App */
       name: z.string(),
-      /** Android-Paketname. Neue Apps: Schema dev.eno2.<appname> */
+      /** Android-Paketname (applicationId), Schema dev.eno2.<appname> */
       packageName: z
         .string()
-        .regex(/^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/, 'Ungültiger Android-Paketname.'),
+        .regex(/^dev\.eno2\.[a-z][a-z0-9_]*$/, 'Paketname muss dem Schema dev.eno2.<appname> folgen.'),
       /** Ein Satz fürs Hero, knackig (z. B. „virt-manager für die Hosentasche“) */
       tagline: z.string().max(80),
       /** Kurzbeschreibung (Hero, Karte, Meta-Description). Ideal: max. ~160 Zeichen. */

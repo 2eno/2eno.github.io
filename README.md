@@ -51,7 +51,7 @@ npm run preview      # gebauten Stand lokal ansehen
 2. `src/content/apps/_vorlage.md` nach `src/content/apps/<appname>.md` kopieren und ausfüllen
    (Dateien mit `_` am Anfang werden ignoriert). Der Dateiname wird zur URL:
    `https://2eno.dev/apps/<appname>/`.
-   - `packageName`: für neue Apps nach dem Schema `dev.eno2.<appname>`.
+   - `packageName` muss `dev.eno2.<appname>` sein (wird beim Build geprüft).
    - `playStoreUrl` für Google Play und/oder `downloadUrl` für GitHub Releases.
    - `accent`: Akzentfarbe der App-Seite, am besten aus dem Icon.
    - `featured: true` zeigt die App als große Karte mit dem ersten Screenshot.

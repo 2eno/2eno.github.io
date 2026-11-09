@@ -1,6 +1,6 @@
 ---
 name: NexAlloyNext
-packageName: io.github.nexalloy.next
+packageName: dev.eno2.nexalloynext
 tagline: Patches als Plug-ins – für gerootete Geräte
 description: LSPosed-Modul, das Patch-Bundles aus beliebigen Patch-Quellen anwendet. Werbung blocken, Tracking-Parameter entfernen und Apps erweitern – ohne APKs neu zu bauen.
 downloadUrl: https://github.com/2eno/NexAlloyNext/releases

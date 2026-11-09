@@ -1,6 +1,6 @@
 ---
 name: Virt Manager for Android
-packageName: dev.virtmanager.android
+packageName: dev.eno2.virtmanager
 tagline: virt-manager für die Hosentasche
 description: Native Android-Version von virt-manager. Verwalte KVM/QEMU- und andere libvirt-Hosts per SSH – mit Live-Graphen, Snapshots, VNC- und serieller Konsole.
 downloadUrl: https://github.com/2eno/virt-manager-android/releases

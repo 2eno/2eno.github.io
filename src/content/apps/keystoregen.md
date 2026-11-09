@@ -1,6 +1,6 @@
 ---
 name: KeyStoreGen
-packageName: io.github.keystoregen
+packageName: dev.eno2.keystoregen
 tagline: Signaturschlüssel direkt auf dem Handy
 description: Erzeugt Android-Signaturschlüssel direkt auf dem Handy und bringt sie sicher dorthin, wo sie hingehören – in GitHub-Secrets, Bitwarden oder auf deinen Rechner.
 downloadUrl: https://github.com/2eno/KeyStoreGen/releases

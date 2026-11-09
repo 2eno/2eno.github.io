@@ -1,6 +1,6 @@
 ---
 name: OpenRGB Remote
-packageName: io.github.openrgbremote
+packageName: dev.eno2.openrgbremote
 tagline: Deine RGB-Beleuchtung auf dem Handy
 description: Inoffizieller, moderner Android-Client für den OpenRGB SDK Server. Steuert Tastaturen, Lüfter und LED-Streifen an deinen PCs im Netzwerk.
 repo: https://github.com/2eno/OpenRGB-Android
