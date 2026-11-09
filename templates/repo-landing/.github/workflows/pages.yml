@@ -1,0 +1,37 @@
+# Optional: Deployment per GitHub Actions statt „Deploy from a branch → /docs“.
+# Nutzen, wenn die Seite gebaut werden muss oder Dot-Dateien enthält.
+# In den Repo-Settings → Pages → Source auf „GitHub Actions“ stellen.
+name: Deploy landing page
+
+on:
+  push:
+    branches: [main]
+    paths: ['docs/**', '.github/workflows/pages.yml']
+  workflow_dispatch:
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/configure-pages@v6
+      # Hier ggf. einen Build-Schritt einfügen (Ausgabe nach ./docs oder Pfad anpassen)
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: ./docs
+          include-hidden-files: true
+      - id: deployment
+        uses: actions/deploy-pages@v5

@@ -12,6 +12,15 @@ const DIST = new URL('../dist/', import.meta.url).pathname;
 const SITE = 'https://2eno.dev';
 const errors = [];
 
+// Projekt-Landingpages aus anderen Repos (z. B. url: /<reponame>/) liegen nicht in dist/,
+// existieren aber live unter 2eno.dev/<reponame>/ → nicht als tote Links melden.
+const externalProjectPaths = new Set();
+const projectsDir = new URL('../src/content/projects/', import.meta.url).pathname;
+for (const f of await readdir(projectsDir).catch(() => [])) {
+  const m = (await readFile(join(projectsDir, f), 'utf8')).match(/^url:\s*['"]?(\/[^'"\s]*)/m);
+  if (m) externalProjectPaths.add(m[1]);
+}
+
 async function exists(p) {
   try {
     await stat(p);
@@ -78,6 +87,7 @@ for (const file of htmlFiles) {
         }
         continue;
       }
+      if (externalProjectPaths.has(pathname)) continue;
       if (!(await resolvesToFile(pathname))) errors.push(`${relative(DIST, file)}: toter Link ${v}`);
     }
   }

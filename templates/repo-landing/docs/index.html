@@ -1,0 +1,85 @@
+<!doctype html>
+<!--
+  Repo-Landingpage-Vorlage für 2eno.dev
+  ─────────────────────────────────────
+  Erscheint unter https://2eno.dev/<REPONAME>/ (GitHub-Projektseite unter der
+  Custom Domain der User-Site). Alle Stellen mit [PLATZHALTER] ersetzen.
+  Wichtig: Links auf eigene Dateien RELATIV halten (z. B. "style.css"),
+  Links auf die Hauptseite ABSOLUT ab Root (z. B. "/impressum/").
+-->
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>[PROJEKTNAME] · 2eno.dev</title>
+    <meta name="description" content="[KURZBESCHREIBUNG, max. ~160 Zeichen]" />
+    <link rel="canonical" href="https://2eno.dev/[REPONAME]/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="2eno.dev" />
+    <meta property="og:locale" content="de_DE" />
+    <meta property="og:title" content="[PROJEKTNAME] · 2eno.dev" />
+    <meta property="og:description" content="[KURZBESCHREIBUNG]" />
+    <meta property="og:url" content="https://2eno.dev/[REPONAME]/" />
+    <meta property="og:image" content="https://2eno.dev/og-default.png" />
+    <!-- Favicon kommt von der Hauptseite (gleiche Domain, kein Drittanbieter) -->
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#inhalt">Zum Inhalt springen</a>
+
+    <header class="site-header">
+      <div class="container inner">
+        <a href="/" class="brand"><img src="/favicon.svg" alt="" width="28" height="28" /><span>2eno.dev</span></a>
+        <nav aria-label="Hauptnavigation">
+          <ul>
+            <li><a href="/">Start</a></li>
+            <li><a href="/apps/">Apps</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="inhalt" tabindex="-1">
+      <section class="hero container">
+        <h1>[PROJEKTNAME]</h1>
+        <p class="lead">[KURZBESCHREIBUNG – was macht das Projekt, für wen ist es?]</p>
+        <ul class="link-list">
+          <li><a class="button" href="https://github.com/2eno/[REPONAME]">Auf GitHub ansehen</a></li>
+          <li><a class="button secondary" href="https://github.com/2eno/[REPONAME]/releases">Releases</a></li>
+        </ul>
+      </section>
+
+      <section class="container section" aria-labelledby="features">
+        <h2 id="features">Funktionen</h2>
+        <ul class="grid">
+          <li class="card"><h3>[Feature 1]</h3><p class="muted">[Beschreibung]</p></li>
+          <li class="card"><h3>[Feature 2]</h3><p class="muted">[Beschreibung]</p></li>
+          <li class="card"><h3>[Feature 3]</h3><p class="muted">[Beschreibung]</p></li>
+        </ul>
+      </section>
+
+      <section class="container section prose" aria-labelledby="install">
+        <h2 id="install">Installation</h2>
+        <pre><code>[git clone https://github.com/2eno/REPONAME.git]</code></pre>
+        <p>[Weitere Schritte, Nutzung, Screenshots …]</p>
+        <!-- Bilder lokal im Repo ablegen, z. B. docs/img/screenshot.png, und mit alt-Text einbinden:
+        <img src="img/screenshot.png" alt="[Beschreibung des Screenshots]" width="800" height="500" /> -->
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container inner">
+        <p class="muted">© 2eno.dev</p>
+        <nav aria-label="Rechtliches">
+          <ul>
+            <li><a href="/impressum/">Impressum</a></li>
+            <li><a href="/datenschutz/">Datenschutz</a></li>
+            <li><a href="https://github.com/2eno/[REPONAME]">Quellcode</a></li>
+          </ul>
+        </nav>
+      </div>
+    </footer>
+  </body>
+</html>
