@@ -1,0 +1,64 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import LegalNotice from '../components/LegalNotice.astro';
+import Value from '../components/Value.astro';
+import { site } from '../site.config';
+
+const c = site.contact;
+---
+
+<BaseLayout title="Impressum" description="Impressum (Anbieterkennzeichnung) von 2eno.dev.">
+  <article class="container section prose">
+    <h1>Impressum</h1>
+
+    <LegalNotice />
+
+    <h2>Angaben gemäß § 5 DDG</h2>
+    <address>
+      <Value value={c.name} /><br />
+      <Value value={c.street} /><br />
+      <Value value={c.city} /><br />
+      {c.country}
+    </address>
+
+    <h2>Kontakt</h2>
+    <p>
+      E-Mail: <Value value={c.email} /><br />
+      Telefon: <Value value={c.phone} />
+    </p>
+
+    <h2>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h2>
+    <address>
+      <Value value={c.name} /><br />
+      <Value value={c.street} /><br />
+      <Value value={c.city} />
+    </address>
+
+    <p class="muted">
+      <mark class="placeholder">
+        [Falls zutreffend ergänzen: Umsatzsteuer-ID nach § 27a UStG, Wirtschafts-ID, Angaben zur
+        Berufshaftpflicht o. Ä. Nicht zutreffende Angaben weglassen.]
+      </mark>
+    </p>
+
+    <h2>Verbraucherstreitbeilegung</h2>
+    <p>
+      Ich bin nicht bereit und nicht verpflichtet, an Streitbeilegungsverfahren vor einer
+      Verbraucherschlichtungsstelle teilzunehmen.
+    </p>
+
+    <h2>Haftung für Links</h2>
+    <p>
+      Diese Website enthält Links zu externen Websites Dritter, auf deren Inhalte ich keinen Einfluss
+      habe. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber
+      verantwortlich. Bei Bekanntwerden von Rechtsverletzungen werde ich derartige Links umgehend
+      entfernen.
+    </p>
+  </article>
+</BaseLayout>
+
+<style>
+  address {
+    font-style: normal;
+  }
+</style>

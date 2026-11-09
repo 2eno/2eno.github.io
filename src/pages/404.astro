@@ -1,0 +1,32 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Seite nicht gefunden" description="Diese Seite existiert nicht." noindex>
+  <section class="container section center">
+    <p class="code" aria-hidden="true">404</p>
+    <h1>Seite nicht gefunden</h1>
+    <p class="muted">Die angeforderte Seite gibt es nicht (mehr). Vielleicht hilft einer dieser Links:</p>
+    <ul class="link-list">
+      <li><a class="button" href="/">Zur Startseite</a></li>
+      <li><a class="button secondary" href="/apps/">Alle Apps</a></li>
+    </ul>
+  </section>
+</BaseLayout>
+
+<style>
+  .center {
+    text-align: center;
+    padding-block: 5rem;
+  }
+  .center .link-list {
+    justify-content: center;
+  }
+  .code {
+    font-size: clamp(4rem, 3rem + 6vw, 7rem);
+    font-weight: 800;
+    margin: 0;
+    line-height: 1;
+    color: var(--accent);
+  }
+</style>
