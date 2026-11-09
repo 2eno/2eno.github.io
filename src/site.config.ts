@@ -16,7 +16,7 @@ export const site = {
     'Android-Apps, Root-Module und Open-Source-Werkzeuge von 2eno – für Homelab, Smart Home und Kommandozeile. Ohne Tracker.',
   author: '[DEIN NAME]',
   intro:
-    'Ich baue Android-Apps, Root-Module und Werkzeuge für Homelab, Smart Home und Kommandozeile – quelloffen, gründlich getestet und ohne Tracker.',
+    'Ich baue Android-Apps, Root-Module und Werkzeuge für Homelab, Smart Home und Kommandozeile – quelloffen und ohne Tracker.',
   /** Links auf der Startseite und im Footer. `rel="me"` wird automatisch gesetzt. */
   links: [
     { label: 'GitHub', href: 'https://github.com/2eno' },

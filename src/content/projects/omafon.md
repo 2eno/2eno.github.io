@@ -1,6 +1,6 @@
 ---
 name: Omafon
-description: Sprechendes Telefon für Menschen mit starker Sehbehinderung. Raspberry Pi Zero 2 W, große tastbare Tasten, Sprachausgabe, Notruf – als Festnetz-Variante über die Fritz!Box oder als Hybrid mit LTE, SMS und GPS.
+description: Sprechendes Telefon für Menschen mit starker Sehbehinderung – Raspberry Pi, große tastbare Tasten, Sprachausgabe und Notruf. Software im Simulator getestet, Hardware noch nicht gebaut.
 url: https://github.com/2eno/omafon
 repo: https://github.com/2eno/omafon
 language: Python
