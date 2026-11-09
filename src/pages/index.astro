@@ -1,3 +1,85 @@
 ---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import AppCard from '../components/AppCard.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { getApps, getProjects } from '../lib/content';
+import { site } from '../site.config';
+
+const apps = await getApps();
+const projects = await getProjects();
 ---
-<h1>2eno.dev</h1>
+
+<BaseLayout title={site.name}>
+  <section class="hero container" aria-labelledby="hero-title">
+    <h1 id="hero-title">Hi, ich bin <span class="accent">2eno</span>.</h1>
+    <p class="lead">{site.intro}</p>
+    <ul class="link-list">
+      {
+        site.links.map((l, i) => (
+          <li>
+            <a class:list={['button', { secondary: i > 0 }]} href={l.href} rel="me noopener">
+              {l.label}
+            </a>
+          </li>
+        ))
+      }
+      {
+        apps.length > 0 && (
+          <li>
+            <a class="button secondary" href="/apps/">
+              Meine Apps
+            </a>
+          </li>
+        )
+      }
+    </ul>
+  </section>
+
+  {
+    apps.length > 0 && (
+      <section class="section container" aria-labelledby="apps-title">
+        <h2 id="apps-title">Apps</h2>
+        <ul class="grid">
+          {apps.map((app) => (
+            <li>
+              <AppCard app={app} />
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+
+  {
+    projects.length > 0 && (
+      <section class="section container" aria-labelledby="projects-title">
+        <h2 id="projects-title">Projekte</h2>
+        <ul class="grid">
+          {projects.map((project) => (
+            <li>
+              <ProjectCard project={project} />
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+</BaseLayout>
+
+<style>
+  .hero {
+    padding-block: clamp(3rem, 8vw, 6rem) 1rem;
+  }
+  .accent {
+    color: var(--accent);
+  }
+  .lead {
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    max-width: 40rem;
+    margin: 0;
+  }
+  .section h2 {
+    margin-top: 0;
+  }
+</style>

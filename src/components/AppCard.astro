@@ -1,0 +1,54 @@
+---
+import { Image } from 'astro:assets';
+import { appUrl, statusLabel, type App } from '../lib/content';
+
+export interface Props {
+  app: App;
+  headingLevel?: 'h2' | 'h3';
+}
+
+const { app, headingLevel: Heading = 'h3' } = Astro.props;
+const { name, description, icon, status, tags } = app.data;
+---
+
+<article class="card app-card">
+  <div class="head">
+    <Image src={icon} alt="" width={64} height={64} densities={[1, 2]} class="icon" />
+    <div>
+      <Heading class="title">
+        <a class="card-link" href={appUrl(app)}>{name}</a>
+      </Heading>
+      {status !== 'released' && <span class="tag status">{statusLabel[status]}</span>}
+    </div>
+  </div>
+  <p class="muted">{description}</p>
+  {
+    tags.length > 0 && (
+      <ul class="tag-list" aria-label="Tags">
+        {tags.map((t) => (
+          <li class="tag">{t}</li>
+        ))}
+      </ul>
+    )
+  }
+</article>
+
+<style>
+  .head {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+  }
+  .icon {
+    border-radius: 22%;
+    flex-shrink: 0;
+  }
+  .title {
+    margin: 0;
+    font-size: 1.2rem;
+  }
+  .status {
+    display: inline-block;
+    margin-top: 0.2rem;
+  }
+</style>

@@ -1,0 +1,33 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import AppCard from '../../components/AppCard.astro';
+import { getApps } from '../../lib/content';
+
+const apps = await getApps();
+---
+
+<BaseLayout title="Apps" description="Übersicht aller Android-Apps von 2eno.">
+  <div class="container section">
+    <h1>Apps</h1>
+    <p class="muted prose">Android-Apps ohne Tracker und mit Fokus auf Datenschutz.</p>
+    {
+      apps.length > 0 ? (
+        <ul class="grid list">
+          {apps.map((app) => (
+            <li>
+              <AppCard app={app} headingLevel="h2" />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>Noch keine Apps veröffentlicht.</p>
+      )
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  .list {
+    margin-top: 2rem;
+  }
+</style>

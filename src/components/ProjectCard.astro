@@ -1,0 +1,31 @@
+---
+import type { Project } from '../lib/content';
+
+export interface Props {
+  project: Project;
+}
+
+const { project } = Astro.props;
+const { name, description, url, tags } = project.data;
+const external = /^https?:\/\//.test(url);
+---
+
+<article class="card">
+  <h3>
+    <a class="card-link" href={url} rel={external ? 'noopener' : undefined}>
+      {name}
+      {external && <span aria-hidden="true"> ↗</span>}
+      {external && <span class="visually-hidden"> (externer Link)</span>}
+    </a>
+  </h3>
+  <p class="muted">{description}</p>
+  {
+    tags.length > 0 && (
+      <ul class="tag-list" aria-label="Tags">
+        {tags.map((t) => (
+          <li class="tag">{t}</li>
+        ))}
+      </ul>
+    )
+  }
+</article>

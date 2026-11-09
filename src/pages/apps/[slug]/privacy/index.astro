@@ -1,0 +1,239 @@
+---
+/**
+ * Datenschutzerklärung pro App (für die Google Play Console).
+ * Wird aus dem `privacy`-Block der App-Markdown-Datei generiert.
+ */
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import LegalNotice from '../../../../components/LegalNotice.astro';
+import Value from '../../../../components/Value.astro';
+import { appUrl, formatDate, getApps, type App } from '../../../../lib/content';
+import { site } from '../../../../site.config';
+
+export const getStaticPaths = (async () => {
+  const apps = await getApps();
+  return apps.map((app) => ({ params: { slug: app.id }, props: { app } }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  app: App;
+}
+
+const { app } = Astro.props;
+const { name, packageName, privacy: p } = app.data;
+const c = site.contact;
+const hasProcessing = p.collectsPersonalData || p.thirdPartyServices.length > 0 || p.containsAds;
+---
+
+<BaseLayout
+  title={`Datenschutzerklärung – ${name}`}
+  description={`Datenschutzerklärung der Android-App ${name} (${packageName}).`}
+>
+  <article class="container section prose">
+    <p class="muted"><a href={appUrl(app)}>← Zurück zu {name}</a></p>
+    <h1>Datenschutzerklärung für die App „{name}“</h1>
+    <p class="muted">Paketname: <code>{packageName}</code> · Stand: {formatDate(p.lastUpdated)}</p>
+
+    <LegalNotice />
+
+    <h2>1. Verantwortlicher</h2>
+    <p>
+      Verantwortlich für die Datenverarbeitung im Sinne der Datenschutz-Grundverordnung (DSGVO) ist:
+    </p>
+    <address>
+      <Value value={c.name} /><br />
+      <Value value={c.street} /><br />
+      <Value value={c.city} /><br />
+      {c.country}<br />
+      E-Mail: <Value value={c.email} />
+    </address>
+
+    <h2>2. Überblick</h2>
+    {
+      p.collectsPersonalData ? (
+        <p>
+          Die App „{name}“ verarbeitet personenbezogene Daten nur in dem unten beschriebenen Umfang
+          und nur, soweit dies für die jeweilige Funktion erforderlich ist.
+        </p>
+      ) : (
+        <p>
+          Die App „{name}“ erhebt <strong>keine personenbezogenen Daten</strong> und überträgt keine
+          personenbezogenen Daten an uns.
+          {!hasProcessing && ' Es sind keine Analyse-, Tracking- oder Werbedienste eingebunden.'}
+        </p>
+      )
+    }
+
+    {
+      p.dataCollected.length > 0 && (
+        <>
+          <h2>3. Verarbeitete Daten</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Daten</th>
+                  <th scope="col">Zweck</th>
+                  <th scope="col">Speicherort</th>
+                  <th scope="col">Weitergabe</th>
+                  <th scope="col">Optional</th>
+                </tr>
+              </thead>
+              <tbody>
+                {p.dataCollected.map((d) => (
+                  <tr>
+                    <th scope="row">{d.type}</th>
+                    <td>{d.purpose}</td>
+                    <td>{d.storage}</td>
+                    <td>{d.sharedWithThirdParties ? 'Ja' : 'Nein'}</td>
+                    <td>{d.optional ? 'Ja' : 'Nein'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {p.collectsPersonalData && (
+            <p>
+              Rechtsgrundlage ist, soweit nicht anders angegeben, Art. 6 Abs. 1 lit. b DSGVO
+              (Bereitstellung der von dir genutzten App-Funktionen) bzw. bei optionalen Funktionen
+              deine Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO.{' '}
+              <mark class="placeholder">[Rechtsgrundlagen prüfen und ggf. anpassen]</mark>
+            </p>
+          )}
+        </>
+      )
+    }
+
+    <h2>4. Berechtigungen</h2>
+    {
+      p.permissions.length > 0 ? (
+        <>
+          <p>Die App fordert folgende Android-Berechtigungen an:</p>
+          <ul>
+            {p.permissions.map((perm) => (
+              <li>
+                <code>{perm.name}</code>: {perm.reason}
+              </li>
+            ))}
+          </ul>
+          <p>Du kannst Berechtigungen jederzeit in den Android-Systemeinstellungen widerrufen.</p>
+        </>
+      ) : (
+        <p>Die App benötigt keine besonderen Android-Berechtigungen.</p>
+      )
+    }
+
+    <h2>5. Dienste von Drittanbietern</h2>
+    {
+      p.thirdPartyServices.length > 0 ? (
+        <>
+          <p>In der App sind folgende Dienste von Drittanbietern eingebunden:</p>
+          <ul>
+            {p.thirdPartyServices.map((s) => (
+              <li>
+                <strong>{s.name}</strong> ({s.provider}): {s.purpose}.{' '}
+                <a href={s.privacyPolicyUrl} rel="noopener">
+                  Datenschutzerklärung des Anbieters
+                </a>
+              </li>
+            ))}
+          </ul>
+          <p>
+            <mark class="placeholder">
+              [Für jeden Dienst Rechtsgrundlage, ggf. Drittlandübermittlung (z. B. USA) und
+              Speicherdauer ergänzen]
+            </mark>
+          </p>
+        </>
+      ) : (
+        <p>Es sind keine Dienste von Drittanbietern (z. B. Analyse- oder Werbe-SDKs) eingebunden.</p>
+      )
+    }
+
+    <h2>6. Werbung</h2>
+    <p>
+      {
+        p.containsAds
+          ? 'Die App enthält Werbung. Details zu den eingesetzten Werbenetzwerken findest du im Abschnitt „Dienste von Drittanbietern“.'
+          : 'Die App enthält keine Werbung.'
+      }
+    </p>
+
+    <h2>7. Google Play</h2>
+    <p>
+      Die App wird über Google Play vertrieben. Beim Herunterladen werden Daten (z. B. dein
+      Google-Konto, Gerätekennungen, Zeitpunkt des Downloads) an Google übermittelt. Darauf haben wir
+      keinen Einfluss. Verantwortlich ist die Google Ireland Limited, Gordon House, Barrow Street,
+      Dublin 4, Irland. Weitere Informationen:
+      <a href="https://policies.google.com/privacy" rel="noopener">Datenschutzerklärung von Google</a
+      >.
+    </p>
+
+    <h2>8. Datensicherheit</h2>
+    <p>
+      {
+        p.encryptedInTransit
+          ? 'Sofern die App Daten über das Internet überträgt, geschieht dies ausschließlich verschlüsselt (TLS).'
+          : 'Die App überträgt keine Daten verschlüsselt. [Prüfen!]'
+      }
+    </p>
+
+    <h2>9. Löschung deiner Daten</h2>
+    <p>
+      {
+        p.dataDeletion ??
+          'Du kannst alle lokal gespeicherten Daten löschen, indem du die App deinstallierst oder in den Android-Einstellungen die App-Daten löschst.'
+      }
+    </p>
+
+    {
+      p.notes && (
+        <>
+          <h2>Weitere Hinweise</h2>
+          <p>{p.notes}</p>
+        </>
+      )
+    }
+
+    <h2>10. Deine Rechte</h2>
+    <p>
+      Du hast das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17),
+      Einschränkung der Verarbeitung (Art. 18), Datenübertragbarkeit (Art. 20) und Widerspruch
+      (Art. 21). Eine erteilte Einwilligung kannst du jederzeit mit Wirkung für die Zukunft
+      widerrufen (Art. 7 Abs. 3 DSGVO). Außerdem hast du das Recht, dich bei einer
+      Datenschutz-Aufsichtsbehörde zu beschweren (Art. 77 DSGVO), z. B. bei der Behörde deines
+      Wohnorts oder <mark class="placeholder">[zuständige Landesbehörde am Sitz des Verantwortlichen]</mark>.
+    </p>
+    <p>Wende dich für alle Anfragen an: <Value value={c.email} /></p>
+
+    <h2>11. Änderungen</h2>
+    <p>
+      Wir passen diese Datenschutzerklärung an, wenn sich die App oder die Rechtslage ändert. Es gilt
+      die jeweils hier veröffentlichte Fassung.
+    </p>
+  </article>
+</BaseLayout>
+
+<style>
+  address {
+    font-style: normal;
+  }
+  .table-wrap {
+    overflow-x: auto;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.95rem;
+  }
+  th,
+  td {
+    text-align: left;
+    vertical-align: top;
+    padding: 0.5rem 0.6rem;
+    border-bottom: 1px solid var(--border);
+  }
+  thead th {
+    background: var(--bg-muted);
+  }
+</style>

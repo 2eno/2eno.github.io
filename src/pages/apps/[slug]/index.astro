@@ -1,0 +1,168 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { Image, getImage } from 'astro:assets';
+import { render } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import PlayBadge from '../../../components/PlayBadge.astro';
+import { appPrivacyUrl, appUrl, getApps, statusLabel, type App } from '../../../lib/content';
+import { site } from '../../../site.config';
+
+export const getStaticPaths = (async () => {
+  const apps = await getApps();
+  return apps.map((app) => ({ params: { slug: app.id }, props: { app } }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  app: App;
+}
+
+const { app } = Astro.props;
+const { name, description, icon, features, screenshots, status, repo, playStoreUrl, packageName } =
+  app.data;
+const { Content } = await render(app);
+
+// PNG-Version des Icons für Open Graph (SVG/WebP werden nicht überall unterstützt)
+const ogIcon = await getImage({ src: icon, width: 512, height: 512, format: 'png' });
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'MobileApplication',
+  name,
+  description,
+  operatingSystem: 'Android',
+  applicationCategory: 'MobileApplication',
+  url: new URL(appUrl(app), site.url).href,
+  image: new URL(ogIcon.src, site.url).href,
+  ...(playStoreUrl && status !== 'coming-soon' ? { installUrl: playStoreUrl } : {}),
+  author: { '@type': 'Person', name: site.author, url: site.url },
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
+};
+---
+
+<BaseLayout title={name} description={description} image={ogIcon.src} imageAlt={`App-Icon von ${name}`}>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+  <section class="hero container" aria-labelledby="app-title">
+    <Image src={icon} alt={`App-Icon von ${name}`} width={128} height={128} densities={[1, 2]} class="icon" loading="eager" />
+    <div class="hero-text">
+      <h1 id="app-title">{name}</h1>
+      {status !== 'released' && <p class="tag status">{statusLabel[status]}</p>}
+      <p class="lead">{description}</p>
+      <div class="actions">
+        <PlayBadge app={app} />
+        {
+          repo && (
+            <a class="button secondary" href={repo} rel="noopener">
+              Quellcode
+            </a>
+          )
+        }
+      </div>
+    </div>
+  </section>
+
+  {
+    features.length > 0 && (
+      <section class="container section" aria-labelledby="features-title">
+        <h2 id="features-title">Funktionen</h2>
+        <ul class="grid features">
+          {features.map((f) => (
+            <li class="card">
+              <h3>{f.title}</h3>
+              <p class="muted">{f.description}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+
+  {
+    screenshots.length > 0 && (
+      <section class="container section" aria-labelledby="screenshots-title">
+        <h2 id="screenshots-title">Screenshots</h2>
+        <ul class="screenshots" tabindex="0" aria-label="Screenshots, horizontal scrollbar">
+          {screenshots.map((s) => (
+            <li>
+              <Image src={s.src} alt={s.alt} widths={[240, 480, 720]} sizes="240px" width={240} />
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+
+  <section class="container section prose about" aria-labelledby="about-title">
+    <h2 id="about-title">Über {name}</h2>
+    <Content />
+    <p class="meta muted">
+      Paketname: <code>{packageName}</code> ·
+      <a href={appPrivacyUrl(app)}>Datenschutzerklärung der App</a>
+    </p>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.5rem 2rem;
+    padding-block: clamp(2.5rem, 6vw, 4.5rem) 1rem;
+  }
+  .icon {
+    border-radius: 22%;
+    box-shadow: var(--shadow);
+    flex-shrink: 0;
+  }
+  .hero-text {
+    flex: 1 1 22rem;
+  }
+  .status {
+    display: inline-block;
+    margin: 0 0 0.5rem;
+  }
+  .lead {
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    margin: 0 0 1.25rem;
+    max-width: 40rem;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+  }
+  .features h3 {
+    margin: 0;
+  }
+  .screenshots {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding: 0.25rem 0.25rem 1rem;
+    margin: 0;
+    list-style: none;
+  }
+  .screenshots li {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
+  .screenshots img {
+    display: block;
+    width: 240px;
+    height: auto;
+    border-radius: 18px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+  .about h2 {
+    margin-top: 0;
+  }
+  .meta {
+    margin-top: 2rem;
+    font-size: 0.95rem;
+  }
+</style>

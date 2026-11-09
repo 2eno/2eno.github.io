@@ -1,0 +1,10 @@
+---
+/** Gibt einen Konfigurationswert aus und hebt [Platzhalter] optisch hervor. */
+export interface Props {
+  value: string;
+}
+const { value } = Astro.props;
+const isPlaceholder = /^\[.*\]$/.test(value.trim());
+---
+
+{isPlaceholder ? <mark class="placeholder">{value}</mark> : value}
