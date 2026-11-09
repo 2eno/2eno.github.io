@@ -1,0 +1,21 @@
+# app-ads.txt für 2eno.dev
+#
+# WOFÜR IST DIESE DATEI?
+# app-ads.txt („Authorized Sellers for Apps“, IAB Tech Lab) legt fest, welche
+# Werbenetzwerke berechtigt sind, Anzeigenplätze in deinen Apps zu verkaufen.
+# Google AdMob (und andere Netzwerke) prüfen die Datei unter
+#   https://2eno.dev/app-ads.txt
+# – also unter der Domain, die im Play-Store-Eintrag als „Website des
+# Entwicklers“ angegeben ist. Ohne gültigen Eintrag kann AdMob die Auslieferung
+# von Anzeigen einschränken.
+#
+# BRAUCHE ICH SIE?
+# Nur, wenn mindestens eine deiner Apps Werbung zeigt. Ohne Werbung kann die
+# Datei so bleiben (nur Kommentare) oder gelöscht werden.
+#
+# FORMAT (eine Zeile pro Werbenetzwerk/Konto):
+#   <Domain des Werbesystems>, <Publisher-ID>, <DIRECT|RESELLER>, <TAG-ID optional>
+#
+# Beispiel Google AdMob – Publisher-ID findest du in AdMob → Einstellungen → Kontoinformationen.
+# Zeile einkommentieren und Platzhalter ersetzen:
+# google.com, pub-[DEINE-PUBLISHER-ID], DIRECT, f08c47fec0942fa0
