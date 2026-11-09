@@ -96,7 +96,8 @@ const jsonLd = {
     <h2 id="about-title">Über {name}</h2>
     <Content />
     <p class="meta muted">
-      Paketname: <code>{packageName}</code> ·
+      Paketname: <code>{packageName}</code>
+      <span aria-hidden="true">·</span>{' '}
       <a href={appPrivacyUrl(app)}>Datenschutzerklärung der App</a>
     </p>
   </section>

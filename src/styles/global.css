@@ -158,6 +158,15 @@ code {
   max-width: var(--maxw-prose);
 }
 
+/* In Kombination mit .container: Spalte bleibt linksbündig, nur der Text wird schmal */
+.container.prose {
+  max-width: var(--maxw);
+}
+
+.container.prose > * {
+  max-width: var(--maxw-prose);
+}
+
 .prose :where(ul, ol) {
   padding-left: 1.25rem;
 }
