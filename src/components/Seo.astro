@@ -1,0 +1,39 @@
+---
+/**
+ * SEO- und Social-Meta-Tags. Kanonische URLs zeigen immer auf https://2eno.dev,
+ * auch wenn die Seite über eno2.dev (Redirect) oder lokal aufgerufen wird.
+ */
+import { site } from '../site.config';
+
+export interface Props {
+  title: string;
+  description: string;
+  /** Absoluter oder site-relativer Pfad zu einem Vorschaubild (PNG/JPG empfohlen). */
+  image?: string;
+  imageAlt?: string;
+  type?: 'website' | 'article';
+  noindex?: boolean;
+}
+
+const { title, description, image = '/og-default.png', imageAlt, type = 'website', noindex = false } =
+  Astro.props;
+
+const canonical = new URL(Astro.url.pathname, site.url).href;
+const imageUrl = new URL(image, site.url).href;
+const fullTitle = title === site.name ? site.name : `${title} · ${site.name}`;
+---
+
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+{noindex && <meta name="robots" content="noindex, follow" />}
+
+<meta property="og:type" content={type} />
+<meta property="og:site_name" content={site.name} />
+<meta property="og:locale" content={site.locale} />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={imageUrl} />
+{imageAlt && <meta property="og:image:alt" content={imageAlt} />}
+<meta name="twitter:card" content="summary" />
