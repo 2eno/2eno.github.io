@@ -17,20 +17,37 @@ const fingerprint = z
   );
 
 const apps = defineCollection({
-  loader: glob({ pattern: '*.md', base: './src/content/apps' }),
+  // Dateien mit _ am Anfang (z. B. _vorlage.md) werden ignoriert.
+  loader: glob({ pattern: '[^_]*.md', base: './src/content/apps' }),
   schema: ({ image }) =>
     z.object({
       /** Anzeigename der App */
       name: z.string(),
-      /** Android-Paketname, Schema dev.eno2.<appname> */
+      /** Android-Paketname. Neue Apps: Schema dev.eno2.<appname> */
       packageName: z
         .string()
-        .regex(/^dev\.eno2\.[a-z][a-z0-9_]*$/, 'Paketname muss dem Schema dev.eno2.<appname> folgen.'),
+        .regex(/^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/, 'Ungültiger Android-Paketname.'),
+      /** Ein Satz fürs Hero, knackig (z. B. „virt-manager für die Hosentasche“) */
+      tagline: z.string().max(80),
       /** Kurzbeschreibung (Hero, Karte, Meta-Description). Ideal: max. ~160 Zeichen. */
       description: z.string().max(200),
       /** Link zum Play-Store-Eintrag. Weglassen, solange die App noch nicht veröffentlicht ist. */
       playStoreUrl: z.url().optional(),
-      status: z.enum(['released', 'beta', 'coming-soon']).default('released'),
+      /** Download außerhalb von Google Play, z. B. GitHub Releases */
+      downloadUrl: z.url().optional(),
+      status: z.enum(['released', 'beta', 'in-development', 'coming-soon']).default('released'),
+      /** Akzentfarbe der App-Seite (Hex), z. B. aus dem App-Icon */
+      accent: z
+        .string()
+        .regex(/^#[0-9a-fA-F]{6}$/)
+        .default('#6366f1'),
+      /** Mindestversion, z. B. „Android 8.0“ */
+      minAndroid: z.string().optional(),
+      license: z.string().optional(),
+      /** Voraussetzungen, z. B. „Root-Zugriff“ */
+      requirements: z.array(z.string()).default([]),
+      /** Auf der Startseite groß hervorheben */
+      featured: z.boolean().default(false),
       /** App-Icon, relativ zur Markdown-Datei (z. B. ../../assets/apps/<appname>/icon.png) */
       icon: image(),
       /** Optionaler Link zum Quellcode */
@@ -70,6 +87,8 @@ const apps = defineCollection({
         lastUpdated: z.coerce.date(),
         /** Werden personenbezogene Daten verarbeitet (durch die App selbst oder eingebundene Dienste)? */
         collectsPersonalData: z.boolean(),
+        /** Erhält der Entwickler (also du) irgendwelche Daten? */
+        developerReceivesData: z.boolean().default(false),
         /** Welche Daten werden verarbeitet, wozu, wo, und werden sie geteilt? */
         dataCollected: z
           .array(
@@ -106,6 +125,8 @@ const apps = defineCollection({
         containsAds: z.boolean().default(false),
         /** Ist die Netzwerk-Kommunikation verschlüsselt (Data-Safety-Formular)? */
         encryptedInTransit: z.boolean().default(true),
+        /** Erläuterung zur Übertragung (überschreibt den Standardtext) */
+        transportNote: z.string().optional(),
         /** Wie können Nutzer:innen ihre Daten löschen? */
         dataDeletion: z.string().optional(),
         /** Freitext für Besonderheiten */
@@ -115,14 +136,23 @@ const apps = defineCollection({
 });
 
 const projects = defineCollection({
-  loader: glob({ pattern: '*.md', base: './src/content/projects' }),
-  schema: z.object({
+  loader: glob({ pattern: '[^_]*.md', base: './src/content/projects' }),
+  schema: ({ image }) => z.object({
     name: z.string(),
-    description: z.string().max(200),
+    description: z.string().max(260),
     /** Ziel der Karte: Landingpage (z. B. /<reponame>/) oder Repo-URL */
     url: z.string(),
     repo: z.url().optional(),
+    /** Hauptsprache, z. B. „Kotlin“ (farbiger Punkt wie auf GitHub) */
+    language: z.string().optional(),
+    license: z.string().optional(),
+    category: z.enum(['Android', 'Modding', 'Hardware', 'Smart Home', 'CLI', 'Web']),
+    /** Optionales Vorschaubild */
+    image: image().optional(),
+    imageAlt: z.string().optional(),
     tags: z.array(z.string()).default([]),
+    /** Größere Karte auf der Startseite */
+    featured: z.boolean().default(false),
     order: z.number().default(100),
     draft: z.boolean().default(false),
   }),
