@@ -1,0 +1,78 @@
+---
+/**
+ * Download-/Store-Buttons einer App.
+ *
+ * Google Play: bewusst eigener Button statt offiziellem Badge-Bild (das darf nur
+ * unverändert gemäß den Markenrichtlinien genutzt werden). Wer es möchte, lädt es
+ * unter https://play.google.com/intl/de/badges/ herunter, legt es lokal ab
+ * (nicht von Google-Servern einbinden!) und ersetzt den Play-Button.
+ */
+import Icon from './Icon.astro';
+import type { App } from '../lib/content';
+
+export interface Props {
+  app: App;
+}
+
+const { app } = Astro.props;
+const { playStoreUrl, downloadUrl, repo, status, name } = app.data;
+const onPlay = playStoreUrl && status !== 'coming-soon';
+---
+
+<div class="actions">
+  {
+    onPlay && (
+      <a class="button play" href={playStoreUrl} rel="noopener">
+        <Icon name="play" size={20} />
+        <span>
+          <small>Jetzt bei</small>
+          Google Play<span class="visually-hidden">: {name} herunterladen</span>
+        </span>
+      </a>
+    )
+  }
+  {
+    downloadUrl && (
+      <a class:list={['button', { secondary: onPlay }]} href={downloadUrl} rel="noopener">
+        <Icon name="download" />
+        APK herunterladen<span class="visually-hidden"> ({name}, GitHub Releases)</span>
+      </a>
+    )
+  }
+  {
+    repo && (
+      <a class="button secondary" href={repo} rel="noopener">
+        <Icon name="github" />
+        Quellcode<span class="visually-hidden"> von {name} auf GitHub</span>
+      </a>
+    )
+  }
+  {!onPlay && !downloadUrl && <p class="soon">Noch kein öffentlicher Download – {status === 'in-development' ? 'die App ist in Entwicklung.' : 'bald verfügbar.'}</p>}
+</div>
+
+<style>
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+  }
+  .play {
+    padding-block: 0.45rem;
+    line-height: 1.1;
+  }
+  .play small {
+    display: block;
+    font-size: 0.66rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    opacity: 0.8;
+  }
+  .soon {
+    flex-basis: 100%;
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-subtle);
+  }
+</style>

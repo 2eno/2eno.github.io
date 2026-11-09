@@ -1,48 +1,121 @@
 ---
+import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import AppCard from '../components/AppCard.astro';
 import ProjectCard from '../components/ProjectCard.astro';
-import { getApps, getProjects } from '../lib/content';
+import Icon from '../components/Icon.astro';
+import { appUrl, getApps, getProjects } from '../lib/content';
 import { site } from '../site.config';
 
 const apps = await getApps();
 const projects = await getProjects();
+const languages = new Set([
+  ...projects.map((p) => p.data.language).filter(Boolean),
+  ...apps.flatMap((a) => a.data.tags.filter((t) => ['Kotlin', 'Java'].includes(t))),
+]);
+
+const stats = [
+  { value: apps.length, label: 'Android-Apps' },
+  { value: projects.length, label: 'weitere Projekte' },
+  { value: languages.size, label: 'Sprachen im Einsatz' },
+  { value: 0, label: 'Tracker' },
+];
+
+const principles = [
+  {
+    icon: 'lock' as const,
+    title: 'Privatsphäre zuerst',
+    text: 'Keine Werbung, keine Analyse-SDKs, keine Konten. Daten bleiben auf deinem Gerät – oder gehen nur dorthin, wohin du sie schickst.',
+  },
+  {
+    icon: 'code' as const,
+    title: 'Quelloffen',
+    text: 'Jedes Projekt liegt öffentlich auf GitHub. Du kannst nachlesen, was der Code tut, ihn selbst bauen und mitmachen.',
+  },
+  {
+    icon: 'check' as const,
+    title: 'Gründlich getestet',
+    text: 'Screenshots entstehen in automatisierten Tests gegen echte Server, Protokolle werden gegen Mitschnitte echter Geräte geprüft.',
+  },
+];
+
+const featuredProjects = projects.filter((p) => p.data.featured);
+const otherProjects = projects.filter((p) => !p.data.featured);
+const github = site.links.find((l) => l.label === 'GitHub');
 ---
 
 <BaseLayout title={site.name}>
-  <section class="hero container" aria-labelledby="hero-title">
-    <h1 id="hero-title">Hi, ich bin <span class="accent">2eno</span>.</h1>
-    <p class="lead">{site.intro}</p>
-    <ul class="link-list">
-      {
-        site.links.map((l, i) => (
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="backdrop" aria-hidden="true"></div>
+    <div class="container hero-inner">
+      <div class="hero-text">
+        <p class="pill">
+          <span class="dot" aria-hidden="true"></span>
+          Android · Open Source · ohne Tracker
+        </p>
+        <h1 id="hero-title">
+          Hi, ich bin <span class="gradient-text">2eno</span>.
+        </h1>
+        <p class="lead">{site.intro}</p>
+        <ul class="link-list">
           <li>
-            <a class:list={['button', { secondary: i > 0 }]} href={l.href} rel="me noopener">
-              {l.label}
+            <a class="button" href="/apps/">
+              Apps entdecken <Icon name="arrow-right" />
             </a>
           </li>
-        ))
-      }
-      {
-        apps.length > 0 && (
-          <li>
-            <a class="button secondary" href="/apps/">
-              Meine Apps
-            </a>
-          </li>
-        )
-      }
-    </ul>
+          {
+            github && (
+              <li>
+                <a class="button secondary" href={github.href} rel="me noopener">
+                  <Icon name="github" /> GitHub
+                </a>
+              </li>
+            )
+          }
+        </ul>
+      </div>
+
+      <ul class="icon-cloud" aria-label="Meine Apps">
+        {
+          apps.slice(0, 4).map((app, i) => (
+            <li style={`--i: ${i}; --app: ${app.data.accent}`}>
+              <a href={appUrl(app)}>
+                <Image src={app.data.icon} alt={app.data.name} width={112} height={112} densities={[1, 2]} loading="eager" />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div class="container">
+      <dl class="stats">
+        {
+          stats.map((s) => (
+            <div>
+              <dt>{s.label}</dt>
+              <dd>{s.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
   </section>
 
   {
     apps.length > 0 && (
       <section class="section container" aria-labelledby="apps-title">
-        <h2 id="apps-title">Apps</h2>
-        <ul class="grid">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Apps</p>
+            <h2 id="apps-title">Für die Hosentasche</h2>
+          </div>
+          <p>Native Android-Apps mit Material 3 – für Homelab, Entwicklung und Bastelprojekte.</p>
+        </div>
+        <ul class="apps-grid">
           {apps.map((app) => (
             <li>
-              <AppCard app={app} />
+              <AppCard app={app} large={app.data.featured} />
             </li>
           ))}
         </ul>
@@ -52,10 +125,25 @@ const projects = await getProjects();
 
   {
     projects.length > 0 && (
-      <section class="section container" aria-labelledby="projects-title">
-        <h2 id="projects-title">Projekte</h2>
+      <section class="section container" id="projekte" aria-labelledby="projects-title">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Projekte</p>
+            <h2 id="projects-title">Hardware, Modding &amp; Werkzeuge</h2>
+          </div>
+          <p>Was sonst noch entsteht – vom barrierearmen Telefon bis zum Smart-Home-Treiber.</p>
+        </div>
+        {featuredProjects.length > 0 && (
+          <ul class="grid featured-projects">
+            {featuredProjects.map((project) => (
+              <li>
+                <ProjectCard project={project} large />
+              </li>
+            ))}
+          </ul>
+        )}
         <ul class="grid">
-          {projects.map((project) => (
+          {otherProjects.map((project) => (
             <li>
               <ProjectCard project={project} />
             </li>
@@ -64,22 +152,243 @@ const projects = await getProjects();
       </section>
     )
   }
+
+  <section class="section container" aria-labelledby="principles-title">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Arbeitsweise</p>
+        <h2 id="principles-title">Worauf du dich verlassen kannst</h2>
+      </div>
+    </div>
+    <ul class="grid principles">
+      {
+        principles.map((p) => (
+          <li class="card">
+            <span class="p-icon">
+              <Icon name={p.icon} size={22} />
+            </span>
+            <h3>{p.title}</h3>
+            <p class="muted">{p.text}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  {
+    github && (
+      <section class="container cta-wrap" aria-labelledby="cta-title">
+        <div class="cta">
+          <div class="backdrop" aria-hidden="true" />
+          <h2 id="cta-title">Idee, Bug oder Frage?</h2>
+          <p>Am schnellsten erreichst du mich über ein Issue im jeweiligen Repository.</p>
+          <a class="button" href={github.href} rel="me noopener">
+            <Icon name="github" /> github.com/2eno
+          </a>
+        </div>
+      </section>
+    )
+  }
 </BaseLayout>
 
 <style>
   .hero {
-    padding-block: clamp(3rem, 8vw, 6rem) 1rem;
+    position: relative;
+    isolation: isolate;
+    padding-block: clamp(3.5rem, 9vw, 7rem) 2rem;
   }
-  .accent {
-    color: var(--accent);
+  .hero-inner {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    align-items: center;
+    gap: 3rem;
+  }
+  @media (max-width: 860px) {
+    .hero-inner {
+      grid-template-columns: 1fr;
+    }
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin: 0 0 1.5rem;
+    padding: 0.3rem 0.9rem 0.3rem 0.7rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: color-mix(in srgb, var(--bg-elevated) 70%, transparent);
+    backdrop-filter: blur(6px);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+  .dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 0 4px rgb(34 197 94 / 0.2);
   }
   .lead {
-    font-size: 1.2rem;
+    font-size: clamp(1.1rem, 1rem + 0.4vw, 1.3rem);
     color: var(--text-muted);
-    max-width: 40rem;
-    margin: 0;
+    max-width: 36rem;
+    margin: 0 0 2rem;
   }
-  .section h2 {
-    margin-top: 0;
+
+  /* App-Icons als schwebende Wolke */
+  .icon-cloud {
+    position: relative;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 7rem));
+    justify-content: center;
+    gap: 1.5rem 2rem;
+  }
+  .icon-cloud li {
+    animation: float 7s ease-in-out infinite;
+    animation-delay: calc(var(--i) * -1.7s);
+  }
+  .icon-cloud li:nth-child(even) {
+    transform: translateY(2.5rem);
+  }
+  .icon-cloud a {
+    display: block;
+    border-radius: 24%;
+    transition: transform 0.3s var(--ease);
+  }
+  .icon-cloud a:hover {
+    transform: scale(1.06) rotate(-3deg);
+  }
+  .icon-cloud img {
+    display: block;
+    width: 7rem;
+    height: 7rem;
+    border-radius: 24%;
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--text) 8%, transparent),
+      0 20px 40px -12px color-mix(in srgb, var(--app) 70%, transparent);
+  }
+  @keyframes float {
+    0%,
+    100% {
+      translate: 0 0;
+    }
+    50% {
+      translate: 0 -10px;
+    }
+  }
+  @media (max-width: 860px) {
+    .icon-cloud {
+      grid-template-columns: repeat(4, minmax(0, 4.5rem));
+      justify-content: start;
+      gap: 1rem;
+    }
+    .icon-cloud li:nth-child(even) {
+      transform: none;
+    }
+    .icon-cloud img {
+      width: 4.5rem;
+      height: 4.5rem;
+    }
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    margin: clamp(3rem, 7vw, 5rem) 0 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: color-mix(in srgb, var(--bg-elevated) 70%, transparent);
+    backdrop-filter: blur(8px);
+    overflow: hidden;
+  }
+  .stats > div {
+    display: flex;
+    flex-direction: column-reverse;
+    padding: 1.25rem 1.5rem;
+  }
+  .stats > div + div {
+    border-left: 1px solid var(--border);
+  }
+  .stats dt {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+  .stats dd {
+    margin: 0;
+    font-size: clamp(1.8rem, 1.4rem + 1.5vw, 2.6rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+  @media (max-width: 640px) {
+    .stats {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .stats > div:nth-child(3) {
+      border-left: 0;
+    }
+    .stats > div:nth-child(n + 3) {
+      border-top: 1px solid var(--border);
+    }
+  }
+
+  .apps-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  @media (max-width: 900px) {
+    .apps-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .featured-projects {
+    grid-template-columns: 1fr;
+    margin-bottom: 1.25rem;
+  }
+
+  .principles .card {
+    background: color-mix(in srgb, var(--bg-elevated) 60%, transparent);
+  }
+  .p-icon {
+    display: inline-grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 12px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
+  }
+
+  .cta-wrap {
+    padding-block: 1rem clamp(3rem, 7vw, 5rem);
+  }
+  .cta {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    text-align: center;
+    padding: clamp(2.5rem, 6vw, 4rem) 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: color-mix(in srgb, var(--bg-elevated) 50%, transparent);
+  }
+  .cta h2 {
+    margin-bottom: 0.5rem;
+  }
+  .cta p {
+    color: var(--text-muted);
+    margin: 0 auto 1.75rem;
+    max-width: 30rem;
   }
 </style>

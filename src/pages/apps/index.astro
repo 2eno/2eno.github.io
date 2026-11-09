@@ -6,16 +6,28 @@ import { getApps } from '../../lib/content';
 const apps = await getApps();
 ---
 
-<BaseLayout title="Apps" description="Übersicht aller Android-Apps von 2eno.">
-  <div class="container section">
-    <h1>Apps</h1>
-    <p class="muted prose">Android-Apps ohne Tracker und mit Fokus auf Datenschutz.</p>
+<BaseLayout
+  title="Apps"
+  description="Alle Android-Apps von 2eno: Virt Manager for Android, OpenRGB Remote, KeyStoreGen und NexAlloyNext – quelloffen und ohne Tracker."
+>
+  <section class="head">
+    <div class="backdrop" aria-hidden="true"></div>
+    <div class="container">
+      <p class="eyebrow">Apps</p>
+      <h1>Android-Apps</h1>
+      <p class="lead">
+        Native Apps mit Material 3 und Jetpack Compose. Quelloffen, ohne Werbung, ohne Tracker – die
+        Downloads findest du auf GitHub.
+      </p>
+    </div>
+  </section>
+  <div class="container list-wrap">
     {
       apps.length > 0 ? (
-        <ul class="grid list">
+        <ul class="apps-grid">
           {apps.map((app) => (
             <li>
-              <AppCard app={app} headingLevel="h2" />
+              <AppCard app={app} headingLevel="h2" large={app.data.featured} />
             </li>
           ))}
         </ul>
@@ -27,7 +39,31 @@ const apps = await getApps();
 </BaseLayout>
 
 <style>
-  .list {
-    margin-top: 2rem;
+  .head {
+    position: relative;
+    isolation: isolate;
+    padding-block: clamp(3rem, 8vw, 5.5rem) 2.5rem;
+  }
+  .lead {
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    max-width: 38rem;
+    margin: 0;
+  }
+  .list-wrap {
+    padding-bottom: clamp(3rem, 7vw, 5rem);
+  }
+  .apps-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  @media (max-width: 900px) {
+    .apps-grid {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

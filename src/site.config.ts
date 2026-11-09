@@ -12,10 +12,11 @@ export const site = {
   lang: 'de',
   locale: 'de_DE',
   /** Standard-Beschreibung, falls eine Seite keine eigene setzt. */
-  description: 'Persönliche Website von 2eno – Projekte, Android-Apps und Open Source.',
+  description:
+    'Android-Apps, Root-Module und Open-Source-Werkzeuge von 2eno – für Homelab, Smart Home und Kommandozeile. Ohne Tracker.',
   author: '[DEIN NAME]',
   intro:
-    'Hi! Ich entwickle Android-Apps und kleine Open-Source-Projekte. Hier findest du eine Übersicht meiner Arbeit.',
+    'Ich baue Android-Apps, Root-Module und Werkzeuge für Homelab, Smart Home und Kommandozeile – quelloffen, gründlich getestet und ohne Tracker.',
   /** Links auf der Startseite und im Footer. `rel="me"` wird automatisch gesetzt. */
   links: [
     { label: 'GitHub', href: 'https://github.com/2eno' },

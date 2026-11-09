@@ -20,9 +20,8 @@ interface Props {
 }
 
 const { app } = Astro.props;
-const { name, packageName, privacy: p } = app.data;
+const { name, packageName, playStoreUrl, privacy: p } = app.data;
 const c = site.contact;
-const hasProcessing = p.collectsPersonalData || p.thirdPartyServices.length > 0 || p.containsAds;
 ---
 
 <BaseLayout
@@ -50,16 +49,21 @@ const hasProcessing = p.collectsPersonalData || p.thirdPartyServices.length > 0 
 
     <h2>2. Überblick</h2>
     {
-      p.collectsPersonalData ? (
+      p.developerReceivesData ? (
         <p>
           Die App „{name}“ verarbeitet personenbezogene Daten nur in dem unten beschriebenen Umfang
           und nur, soweit dies für die jeweilige Funktion erforderlich ist.
         </p>
       ) : (
         <p>
-          Die App „{name}“ erhebt <strong>keine personenbezogenen Daten</strong> und überträgt keine
-          personenbezogenen Daten an uns.
-          {!hasProcessing && ' Es sind keine Analyse-, Tracking- oder Werbedienste eingebunden.'}
+          <strong>Die App „{name}“ sendet keine Daten an mich als Entwickler.</strong> Ich betreibe
+          keine Server für diese App und kann nicht sehen, wer sie nutzt oder wie.
+          {!p.containsAds && ' Sie enthält keine Werbung und keine Analyse- oder Tracking-Dienste.'}
+          {
+            p.collectsPersonalData
+              ? ' Die App verarbeitet die unten aufgeführten Daten ausschließlich auf deinem Gerät bzw. überträgt sie nur an die Ziele, die du selbst festlegst.'
+              : ' Sie verarbeitet keine personenbezogenen Daten.'
+          }
         </p>
       )
     }
@@ -127,7 +131,7 @@ const hasProcessing = p.collectsPersonalData || p.thirdPartyServices.length > 0 
     {
       p.thirdPartyServices.length > 0 ? (
         <>
-          <p>In der App sind folgende Dienste von Drittanbietern eingebunden:</p>
+          <p>Die App kommuniziert mit folgenden Diensten von Drittanbietern:</p>
           <ul>
             {p.thirdPartyServices.map((s) => (
               <li>
@@ -159,22 +163,33 @@ const hasProcessing = p.collectsPersonalData || p.thirdPartyServices.length > 0 
       }
     </p>
 
-    <h2>7. Google Play</h2>
-    <p>
-      Die App wird über Google Play vertrieben. Beim Herunterladen werden Daten (z. B. dein
-      Google-Konto, Gerätekennungen, Zeitpunkt des Downloads) an Google übermittelt. Darauf haben wir
-      keinen Einfluss. Verantwortlich ist die Google Ireland Limited, Gordon House, Barrow Street,
-      Dublin 4, Irland. Weitere Informationen:{' '}
-      <a href="https://policies.google.com/privacy" rel="noopener">Datenschutzerklärung von Google</a
-      >.
-    </p>
+    <h2>7. Bezug der App</h2>
+    {
+      playStoreUrl ? (
+        <p>
+          Die App wird über Google Play vertrieben. Beim Herunterladen werden Daten (z. B. dein
+          Google-Konto, Gerätekennungen, Zeitpunkt des Downloads) an Google übermittelt. Darauf habe
+          ich keinen Einfluss. Verantwortlich ist die Google Ireland Limited, Gordon House, Barrow
+          Street, Dublin 4, Irland. Weitere Informationen:{' '}
+          <a href="https://policies.google.com/privacy" rel="noopener">Datenschutzerklärung von Google</a>.
+        </p>
+      ) : (
+        <p>
+          Die App wird über GitHub bereitgestellt (Quellcode und Releases). Beim Herunterladen
+          verarbeitet GitHub technisch notwendige Daten wie deine IP-Adresse. Darauf habe ich keinen
+          Einfluss. Weitere Informationen:{' '}
+          <a href="https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement" rel="noopener">Datenschutzerklärung von GitHub</a>.
+        </p>
+      )
+    }
 
-    <h2>8. Datensicherheit</h2>
+    <h2>8. Datenübertragung und Sicherheit</h2>
     <p>
       {
-        p.encryptedInTransit
-          ? 'Sofern die App Daten über das Internet überträgt, geschieht dies ausschließlich verschlüsselt (TLS).'
-          : 'Die App überträgt keine Daten verschlüsselt. [Prüfen!]'
+        p.transportNote ??
+          (p.encryptedInTransit
+            ? 'Sofern die App Daten über das Internet überträgt, geschieht dies ausschließlich verschlüsselt (TLS).'
+            : 'Die Netzwerkkommunikation der App ist nicht verschlüsselt.')
       }
     </p>
 
@@ -208,7 +223,7 @@ const hasProcessing = p.collectsPersonalData || p.thirdPartyServices.length > 0 
 
     <h2>11. Änderungen</h2>
     <p>
-      Wir passen diese Datenschutzerklärung an, wenn sich die App oder die Rechtslage ändert. Es gilt
+      Ich passe diese Datenschutzerklärung an, wenn sich die App oder die Rechtslage ändert. Es gilt
       die jeweils hier veröffentlichte Fassung.
     </p>
   </article>

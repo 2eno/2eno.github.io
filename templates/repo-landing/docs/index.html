@@ -34,25 +34,30 @@
         <a href="/" class="brand"><img src="/favicon.svg" alt="" width="28" height="28" /><span>2eno.dev</span></a>
         <nav aria-label="Hauptnavigation">
           <ul>
-            <li><a href="/">Start</a></li>
             <li><a href="/apps/">Apps</a></li>
+            <li><a href="/#projekte">Projekte</a></li>
           </ul>
         </nav>
       </div>
     </header>
 
     <main id="inhalt" tabindex="-1">
-      <section class="hero container">
+      <section class="hero">
+        <div class="backdrop" aria-hidden="true"></div>
+        <div class="container">
+        <p class="eyebrow">[KATEGORIE, z. B. CLI]</p>
         <h1>[PROJEKTNAME]</h1>
         <p class="lead">[KURZBESCHREIBUNG – was macht das Projekt, für wen ist es?]</p>
         <ul class="link-list">
           <li><a class="button" href="https://github.com/2eno/[REPONAME]">Auf GitHub ansehen</a></li>
           <li><a class="button secondary" href="https://github.com/2eno/[REPONAME]/releases">Releases</a></li>
         </ul>
+        </div>
       </section>
 
       <section class="container section" aria-labelledby="features">
-        <h2 id="features">Funktionen</h2>
+        <p class="eyebrow">Funktionen</p>
+        <h2 id="features">Was es kann</h2>
         <ul class="grid">
           <li class="card"><h3>[Feature 1]</h3><p class="muted">[Beschreibung]</p></li>
           <li class="card"><h3>[Feature 2]</h3><p class="muted">[Beschreibung]</p></li>

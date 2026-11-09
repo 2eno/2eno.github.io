@@ -26,7 +26,20 @@ export const appPrivacyUrl = (app: App) => `/apps/${app.id}/privacy/`;
 export const statusLabel: Record<App['data']['status'], string> = {
   released: 'Verfügbar',
   beta: 'Beta',
+  'in-development': 'In Entwicklung',
   'coming-soon': 'Demnächst',
+};
+
+/** Farben wie bei GitHub Linguist */
+export const languageColor: Record<string, string> = {
+  Kotlin: '#A97BFF',
+  Java: '#b07219',
+  Python: '#3572A5',
+  Shell: '#89e051',
+  Groovy: '#4298b8',
+  Astro: '#ff5a03',
+  TypeScript: '#3178c6',
+  JavaScript: '#f1e05a',
 };
 
 export const formatDate = (d: Date) =>

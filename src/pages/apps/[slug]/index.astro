@@ -3,7 +3,8 @@ import type { GetStaticPaths } from 'astro';
 import { Image, getImage } from 'astro:assets';
 import { render } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
-import PlayBadge from '../../../components/PlayBadge.astro';
+import AppActions from '../../../components/AppActions.astro';
+import Icon from '../../../components/Icon.astro';
 import { appPrivacyUrl, appUrl, getApps, statusLabel, type App } from '../../../lib/content';
 import { site } from '../../../site.config';
 
@@ -17,153 +18,369 @@ interface Props {
 }
 
 const { app } = Astro.props;
-const { name, description, icon, features, screenshots, status, repo, playStoreUrl, packageName } =
-  app.data;
+const d = app.data;
 const { Content } = await render(app);
 
-// PNG-Version des Icons für Open Graph (SVG/WebP werden nicht überall unterstützt)
-const ogIcon = await getImage({ src: icon, width: 512, height: 512, format: 'png' });
+// PNG-Version des Icons für Open Graph (WebP wird nicht überall unterstützt)
+const ogIcon = await getImage({ src: d.icon, width: 512, height: 512, format: 'png' });
+
+const facts = [
+  { label: 'Status', value: statusLabel[d.status] },
+  d.minAndroid && { label: 'Benötigt', value: `${d.minAndroid} oder neuer` },
+  d.license && { label: 'Lizenz', value: d.license },
+  { label: 'Paketname', value: d.packageName, mono: true },
+].filter(Boolean) as { label: string; value: string; mono?: boolean }[];
 
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'MobileApplication',
-  name,
-  description,
-  operatingSystem: 'Android',
-  applicationCategory: 'MobileApplication',
+  name: d.name,
+  description: d.description,
+  operatingSystem: d.minAndroid ?? 'Android',
+  applicationCategory: 'UtilitiesApplication',
   url: new URL(appUrl(app), site.url).href,
   image: new URL(ogIcon.src, site.url).href,
-  ...(playStoreUrl && status !== 'coming-soon' ? { installUrl: playStoreUrl } : {}),
-  author: { '@type': 'Person', name: site.author, url: site.url },
+  ...(d.playStoreUrl && d.status !== 'coming-soon' ? { installUrl: d.playStoreUrl } : {}),
+  ...(d.downloadUrl && !d.playStoreUrl ? { downloadUrl: d.downloadUrl } : {}),
+  ...(d.repo ? { codeRepository: d.repo } : {}),
+  author: { '@type': 'Person', name: '2eno', url: site.url },
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
 };
 ---
 
-<BaseLayout title={name} description={description} image={ogIcon.src} imageAlt={`App-Icon von ${name}`}>
+<BaseLayout title={d.name} description={d.description} image={ogIcon.src} imageAlt={`App-Icon von ${d.name}`}>
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 
-  <section class="hero container" aria-labelledby="app-title">
-    <Image src={icon} alt={`App-Icon von ${name}`} width={128} height={128} densities={[1, 2]} class="icon" loading="eager" />
-    <div class="hero-text">
-      <h1 id="app-title">{name}</h1>
-      {status !== 'released' && <p class="tag status">{statusLabel[status]}</p>}
-      <p class="lead">{description}</p>
-      <div class="actions">
-        <PlayBadge app={app} />
+  <div class="app-page" style={`--app: ${d.accent}`}>
+    <section class="hero" aria-labelledby="app-title">
+      <div class="backdrop app-backdrop" aria-hidden="true"></div>
+      <div class="container">
+        <nav class="crumbs" aria-label="Brotkrumen">
+          <a href="/apps/">Apps</a>
+          <span aria-hidden="true">/</span>
+          <span aria-current="page">{d.name}</span>
+        </nav>
+        <div class="hero-grid">
+          <Image src={d.icon} alt={`App-Icon von ${d.name}`} width={136} height={136} densities={[1, 2]} class="icon" loading="eager" />
+          <div class="hero-text">
+            <p class="eyebrow">{d.tagline}</p>
+            <h1 id="app-title">{d.name}</h1>
+            <p class="lead">{d.description}</p>
+            <AppActions app={app} />
+          </div>
+        </div>
+
+        <dl class="facts">
+          {
+            facts.map((f) => (
+              <div>
+                <dt>{f.label}</dt>
+                <dd class:list={{ mono: f.mono }}>{f.value}</dd>
+              </div>
+            ))
+          }
+        </dl>
+
         {
-          repo && (
-            <a class="button secondary" href={repo} rel="noopener">
-              Quellcode
-            </a>
+          d.requirements.length > 0 && (
+            <div class="requirements" role="note">
+              <Icon name="shield" size={20} />
+              <p>
+                <strong>Voraussetzungen:</strong> {d.requirements.join(' · ')}
+              </p>
+            </div>
           )
         }
       </div>
-    </div>
-  </section>
+    </section>
 
-  {
-    features.length > 0 && (
-      <section class="container section" aria-labelledby="features-title">
-        <h2 id="features-title">Funktionen</h2>
-        <ul class="grid features">
-          {features.map((f) => (
-            <li class="card">
-              <h3>{f.title}</h3>
-              <p class="muted">{f.description}</p>
-            </li>
-          ))}
-        </ul>
-      </section>
-    )
-  }
+    {
+      d.screenshots.length > 0 && (
+        <section class="screens-section" aria-labelledby="screenshots-title">
+          <div class="container">
+            <h2 id="screenshots-title" class="visually-hidden">
+              Screenshots
+            </h2>
+          </div>
+          <ul class="screenshots" tabindex="0" aria-label="Screenshots, horizontal scrollbar">
+            {d.screenshots.map((s, i) => (
+              <li>
+                <figure class="phone">
+                  <Image src={s.src} alt={s.alt} widths={[260, 520]} sizes="260px" width={260} loading={i < 3 ? 'eager' : 'lazy'} />
+                </figure>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
 
-  {
-    screenshots.length > 0 && (
-      <section class="container section" aria-labelledby="screenshots-title">
-        <h2 id="screenshots-title">Screenshots</h2>
-        <ul class="screenshots" tabindex="0" aria-label="Screenshots, horizontal scrollbar">
-          {screenshots.map((s) => (
-            <li>
-              <Image src={s.src} alt={s.alt} widths={[240, 480, 720]} sizes="240px" width={240} />
-            </li>
-          ))}
-        </ul>
-      </section>
-    )
-  }
+    {
+      d.features.length > 0 && (
+        <section class="container section" aria-labelledby="features-title">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Funktionen</p>
+              <h2 id="features-title">Was {d.name} kann</h2>
+            </div>
+          </div>
+          <ul class="grid features">
+            {d.features.map((f, i) => (
+              <li class="card">
+                <span class="num" aria-hidden="true">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <h3>{f.title}</h3>
+                <p class="muted">{f.description}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
 
-  <section class="container section prose about" aria-labelledby="about-title">
-    <h2 id="about-title">Über {name}</h2>
-    <Content />
-    <p class="meta muted">
-      Paketname: <code>{packageName}</code>
-      <span aria-hidden="true">·</span>{' '}
-      <a href={appPrivacyUrl(app)}>Datenschutzerklärung der App</a>
-    </p>
-  </section>
+    <section class="container section about-wrap" aria-labelledby="about-title">
+      <div class="about prose">
+        <p class="eyebrow">Hintergrund</p>
+        <h2 id="about-title">Über {d.name}</h2>
+        <Content />
+      </div>
+      <aside class="side">
+        <a class="card side-card" href={appPrivacyUrl(app)}>
+          <span class="side-icon"><Icon name="lock" size={20} /></span>
+          <strong>Datenschutz</strong>
+          <span class="muted">
+            {
+              d.privacy.developerReceivesData
+                ? 'Welche Daten die App verarbeitet und warum.'
+                : 'Die App sendet keine Daten an mich. Alle Details in der Datenschutzerklärung.'
+            }
+          </span>
+          <span class="go">Datenschutzerklärung lesen <Icon name="arrow-right" size={16} /></span>
+        </a>
+        {
+          d.tags.length > 0 && (
+            <div class="card side-card">
+              <strong>Technik</strong>
+              <ul class="tag-list">
+                {d.tags.map((t) => (
+                  <li class="tag">{t}</li>
+                ))}
+              </ul>
+            </div>
+          )
+        }
+      </aside>
+    </section>
+  </div>
 </BaseLayout>
 
 <style>
+  .app-page {
+    --accent: color-mix(in srgb, var(--app) 80%, var(--text));
+  }
   .hero {
+    position: relative;
+    isolation: isolate;
+    padding-block: 2rem 2.5rem;
+  }
+  .app-backdrop::before {
+    background:
+      radial-gradient(45% 60% at 15% 20%, color-mix(in srgb, var(--app) 35%, transparent), transparent 70%),
+      radial-gradient(35% 45% at 85% 10%, var(--glow-2), transparent 70%);
+  }
+  .crumbs {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 1.5rem 2rem;
-    padding-block: clamp(2.5rem, 6vw, 4.5rem) 1rem;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-subtle);
+    margin-bottom: clamp(2rem, 5vw, 3.5rem);
+  }
+  .crumbs a {
+    color: var(--text-muted);
+    text-decoration: none;
+  }
+  .crumbs a:hover {
+    color: var(--text);
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1.5rem 2.5rem;
+    align-items: start;
+  }
+  @media (max-width: 700px) {
+    .hero-grid {
+      grid-template-columns: 1fr;
+    }
+    .icon {
+      width: 96px;
+      height: 96px;
+    }
   }
   .icon {
-    border-radius: 22%;
-    box-shadow: var(--shadow);
-    flex-shrink: 0;
+    border-radius: 24%;
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--text) 8%, transparent),
+      0 24px 48px -16px color-mix(in srgb, var(--app) 80%, transparent);
   }
-  .hero-text {
-    flex: 1 1 22rem;
-  }
-  .status {
-    display: inline-block;
-    margin: 0 0 0.5rem;
+  .hero-text h1 {
+    margin-bottom: 0.75rem;
   }
   .lead {
-    font-size: 1.2rem;
+    font-size: clamp(1.1rem, 1rem + 0.4vw, 1.25rem);
     color: var(--text-muted);
-    margin: 0 0 1.25rem;
-    max-width: 40rem;
+    margin: 0 0 1.75rem;
+    max-width: 42rem;
   }
-  .actions {
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+    gap: 0;
+    margin: clamp(2rem, 5vw, 3rem) 0 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: color-mix(in srgb, var(--bg-elevated) 70%, transparent);
+    backdrop-filter: blur(8px);
+    overflow: hidden;
+  }
+  .facts > div {
+    padding: 1rem 1.25rem;
+    border-right: 1px solid var(--border);
+    margin-right: -1px;
+  }
+  .facts dt {
+    font-size: 0.8rem;
+    color: var(--text-subtle);
+  }
+  .facts dd {
+    margin: 0;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+  .facts .mono {
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+  }
+  .requirements {
     display: flex;
-    flex-wrap: wrap;
     gap: 0.75rem;
     align-items: center;
+    margin-top: 1rem;
+    padding: 0.85rem 1.1rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid color-mix(in srgb, var(--app) 35%, var(--border));
+    background: color-mix(in srgb, var(--app) 8%, var(--bg-elevated));
   }
-  .features h3 {
+  .requirements p {
     margin: 0;
+  }
+  .requirements :global(svg) {
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  /* Screenshots im Handy-Rahmen, volle Breite, horizontal scrollbar */
+  .screens-section {
+    padding-block: 1.5rem 0;
   }
   .screenshots {
     display: flex;
-    gap: 1rem;
+    gap: 1.5rem;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
-    padding: 0.25rem 0.25rem 1rem;
+    scroll-padding-inline: max(1.1rem, calc((100vw - var(--maxw)) / 2 + 2rem));
+    padding: 1rem max(1.1rem, calc((100vw - var(--maxw)) / 2 + 2rem)) 2rem;
     margin: 0;
     list-style: none;
+    scrollbar-width: thin;
   }
   .screenshots li {
     flex: 0 0 auto;
     scroll-snap-align: start;
   }
-  .screenshots img {
+  .phone {
+    margin: 0;
+    padding: 8px;
+    border-radius: 34px;
+    background: #0d0d12;
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--text) 12%, transparent),
+      var(--shadow-lg);
+    transition: transform 0.3s var(--ease);
+  }
+  .phone:hover {
+    transform: translateY(-4px);
+  }
+  .phone img {
     display: block;
     width: 240px;
     height: auto;
-    border-radius: 18px;
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow);
+    border-radius: 26px;
+  }
+
+  .features .card {
+    gap: 0.5rem;
+  }
+  .num {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  .features h3 {
+    margin: 0;
+  }
+
+  .about-wrap {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 20rem;
+    gap: 3rem;
+    align-items: start;
+    padding-top: 0;
+  }
+  @media (max-width: 900px) {
+    .about-wrap {
+      grid-template-columns: 1fr;
+    }
   }
   .about h2 {
     margin-top: 0;
   }
-  .meta {
-    margin-top: 2rem;
-    font-size: 0.95rem;
+  .side {
+    display: grid;
+    gap: 1rem;
+    position: sticky;
+    top: 5.5rem;
+  }
+  .side-card {
+    gap: 0.5rem;
+    color: inherit;
+    text-decoration: none;
+  }
+  a.side-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--border-strong);
+  }
+  .side-icon {
+    display: inline-grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 12px;
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  .side-card .muted {
+    font-size: 0.93rem;
+  }
+  .go {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--accent);
   }
 </style>

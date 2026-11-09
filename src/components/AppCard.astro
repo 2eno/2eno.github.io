@@ -1,54 +1,169 @@
 ---
 import { Image } from 'astro:assets';
+import Icon from './Icon.astro';
 import { appUrl, statusLabel, type App } from '../lib/content';
 
 export interface Props {
   app: App;
   headingLevel?: 'h2' | 'h3';
+  /** Große Karte mit Screenshot-Vorschau */
+  large?: boolean;
 }
 
-const { app, headingLevel: Heading = 'h3' } = Astro.props;
-const { name, description, icon, status, tags } = app.data;
+const { app, headingLevel: Heading = 'h3', large = false } = Astro.props;
+const { name, tagline, description, icon, status, tags, accent, screenshots, requirements } = app.data;
+const preview = large ? screenshots[0] : undefined;
 ---
 
-<article class="card app-card">
-  <div class="head">
-    <Image src={icon} alt="" width={64} height={64} densities={[1, 2]} class="icon" />
-    <div>
-      <Heading class="title">
-        <a class="card-link" href={appUrl(app)}>{name}</a>
-      </Heading>
-      {status !== 'released' && <span class="tag status">{statusLabel[status]}</span>}
+<article class:list={['card', 'app-card', { large, 'has-preview': preview }]} style={`--app: ${accent}`}>
+  <div class="glow" aria-hidden="true"></div>
+  <div class="body">
+    <div class="head">
+      <Image src={icon} alt="" width={64} height={64} densities={[1, 2]} class="icon" />
+      <div class="title-wrap">
+        <Heading class="title">
+          <a class="card-link" href={appUrl(app)}>{name}</a>
+        </Heading>
+        <p class="tagline">{tagline}</p>
+      </div>
     </div>
+    <p class="muted desc">{description}</p>
+    <div class="meta">
+      <span class="badge" data-status={status}>{statusLabel[status]}</span>
+      {requirements.length > 0 && <span class="tag">{requirements[0]}</span>}
+      {
+        tags.slice(0, large ? 3 : 2).map((t) => (
+          <span class="tag">{t}</span>
+        ))
+      }
+    </div>
+    <span class="more" aria-hidden="true">Mehr erfahren <Icon name="arrow-right" size={16} /></span>
   </div>
-  <p class="muted">{description}</p>
   {
-    tags.length > 0 && (
-      <ul class="tag-list" aria-label="Tags">
-        {tags.map((t) => (
-          <li class="tag">{t}</li>
-        ))}
-      </ul>
+    preview && (
+      <div class="preview" aria-hidden="true">
+        <Image src={preview.src} alt="" widths={[260, 520]} sizes="260px" width={260} />
+      </div>
     )
   }
 </article>
 
 <style>
+  .app-card {
+    overflow: hidden;
+    padding: 0;
+    gap: 0;
+    isolation: isolate;
+  }
+  .glow {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(
+      120% 80% at 0% 0%,
+      color-mix(in srgb, var(--app) 16%, transparent),
+      transparent 60%
+    );
+    opacity: 0.8;
+    transition: opacity 0.3s;
+  }
+  .app-card:hover .glow {
+    opacity: 1;
+  }
+  .body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    padding: 1.5rem;
+    flex: 1;
+  }
   .head {
     display: flex;
     align-items: center;
-    gap: 0.9rem;
+    gap: 1rem;
   }
   .icon {
     border-radius: 22%;
     flex-shrink: 0;
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--text) 8%, transparent),
+      0 8px 20px -6px color-mix(in srgb, var(--app) 55%, transparent);
   }
   .title {
     margin: 0;
     font-size: 1.2rem;
   }
-  .status {
-    display: inline-block;
-    margin-top: 0.2rem;
+  .tagline {
+    margin: 0.1rem 0 0;
+    font-size: 0.9rem;
+    color: var(--text-subtle);
+  }
+  .desc {
+    margin: 0;
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: auto;
+  }
+  .more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .more :global(svg) {
+    transition: transform 0.25s var(--ease);
+  }
+  .app-card:hover .more :global(svg) {
+    transform: translateX(4px);
+  }
+
+  /* Große Variante mit Screenshot */
+  .large.has-preview {
+    flex-direction: row;
+    min-height: 23rem;
+  }
+  .large .title {
+    font-size: 1.45rem;
+  }
+  .preview {
+    position: relative;
+    flex: 0 0 42%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 2rem;
+    background: linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--app) 30%, transparent),
+      color-mix(in srgb, var(--app) 6%, transparent)
+    );
+    overflow: hidden;
+  }
+  .preview img {
+    width: 78%;
+    max-width: 230px;
+    height: auto;
+    border-radius: 22px 22px 0 0;
+    border: 6px solid #111;
+    border-bottom: 0;
+    box-shadow: var(--shadow-lg);
+    transform: translateY(0) rotate(-2deg);
+    transition: transform 0.4s var(--ease);
+  }
+  .app-card:hover .preview img {
+    transform: translateY(-6px) rotate(0deg);
+  }
+  @media (max-width: 640px) {
+    .large.has-preview {
+      flex-direction: column;
+    }
+    .preview {
+      max-height: 15rem;
+    }
   }
 </style>

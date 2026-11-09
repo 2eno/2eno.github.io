@@ -1,7 +1,8 @@
 # 2eno.dev
 
 Persönliche Website und App-Landingpages – statisch gebaut mit [Astro](https://astro.build),
-gehostet auf GitHub Pages. Keine Tracker, keine Cookies, keine externen Fonts/CDNs.
+gehostet auf GitHub Pages. Keine Tracker, keine Cookies, keine externen Fonts/CDNs
+(die Schrift Inter wird über `@fontsource-variable/inter` mitgebaut und selbst gehostet).
 
 ## Lokale Entwicklung
 
@@ -45,32 +46,35 @@ npm run preview      # gebauten Stand lokal ansehen
 ## Neue App hinzufügen
 
 1. Bilder ablegen unter `src/assets/apps/<appname>/`:
-   - `icon.png` – quadratisch, z. B. das 512×512-Icon aus der Play Console
-   - Screenshots, z. B. `screenshot-1.png` … (Hochformat; werden automatisch zu WebP verkleinert)
-2. `src/content/apps/example.md` nach `src/content/apps/<appname>.md` kopieren und ausfüllen.
-   Der Dateiname wird zur URL: `https://2eno.dev/apps/<appname>/`.
-   - `packageName` muss `dev.eno2.<appname>` sein (wird beim Build geprüft).
-   - `playStoreUrl` weglassen oder `status: coming-soon` setzen, solange die App nicht live ist.
+   - `icon.png` – quadratisch, 512×512
+   - Screenshots im Hochformat (werden automatisch zu WebP verkleinert und im Handy-Rahmen gezeigt)
+2. `src/content/apps/_vorlage.md` nach `src/content/apps/<appname>.md` kopieren und ausfüllen
+   (Dateien mit `_` am Anfang werden ignoriert). Der Dateiname wird zur URL:
+   `https://2eno.dev/apps/<appname>/`.
+   - `packageName`: für neue Apps nach dem Schema `dev.eno2.<appname>`.
+   - `playStoreUrl` für Google Play und/oder `downloadUrl` für GitHub Releases.
+   - `accent`: Akzentfarbe der App-Seite, am besten aus dem Icon.
+   - `featured: true` zeigt die App als große Karte mit dem ersten Screenshot.
    - Jeder Screenshot braucht einen `alt`-Text.
-   - Den `privacy`-Block so ausfüllen, dass er zum **Datensicherheit-Formular** der Play Console passt.
+   - Den `privacy`-Block wahrheitsgemäß ausfüllen; bei Play-Apps muss er zum
+     **Datensicherheit-Formular** der Play Console passen.
    - Für Android App Links `appLinks.enabled: true` und den SHA-256-Fingerprint eintragen
      (Play Console → *Testen und veröffentlichen → App-Integrität → App-Signatur*).
 3. `npm run build && npm run check:dist`
 4. Committen und pushen – fertig. Startseiten-Karte, App-Seite, `/apps/<appname>/privacy/`,
    Sitemap-Eintrag und `assetlinks.json` entstehen automatisch.
-5. In der Play Console als Datenschutzerklärung `https://2eno.dev/apps/<appname>/privacy/` eintragen.
-
-Die Beispiel-App entfernen: `src/content/apps/example.md` und `src/assets/apps/example/` löschen
-(oder `draft: true` setzen).
+5. Bei Play-Apps in der Play Console als Datenschutzerklärung
+   `https://2eno.dev/apps/<appname>/privacy/` eintragen.
 
 **Projekte** (z. B. Repos) funktionieren genauso über `src/content/projects/<name>.md`
-mit `name`, `description`, `url`, optional `repo`, `tags`, `order`.
+mit `name`, `description`, `url`, `category`, optional `repo`, `language`, `license`, `image`,
+`tags`, `featured`, `order`.
 
 ### Google-Play-Badge
 
 Statt des offiziellen Badge-Bildes wird ein eigener Button verwendet. Wer das offizielle Badge
 möchte: unter <https://play.google.com/intl/de/badges/> herunterladen, **lokal** ablegen
-(nicht von Google-Servern einbinden) und in `src/components/PlayBadge.astro` einsetzen.
+(nicht von Google-Servern einbinden) und in `src/components/AppActions.astro` einsetzen.
 Dabei die Markenrichtlinien von Google beachten.
 
 ## Vor dem Livegang
@@ -80,8 +84,9 @@ Dabei die Markenrichtlinien von Google beachten.
 - [ ] Impressum, Datenschutzerklärung und App-Datenschutzerklärungen sind **Vorlagen** –
       ergänzen, **rechtlich prüfen lassen** und anschließend die gelbe Hinweisbox
       (`<LegalNotice />`) entfernen.
-- [ ] Beispiel-App entfernen bzw. durch eine echte App ersetzen.
-- [ ] Platzhalter-Fingerprint in `assetlinks.json` ersetzen (sonst schlägt die App-Links-Verifizierung fehl).
+- [ ] App-Texte und Datenschutzangaben unter `src/content/apps/` gegenlesen – sie sind aus den
+      READMEs und Manifesten der Repos abgeleitet.
+- [ ] `assetlinks.json` ist leer (`[]`), bis eine App `appLinks.enabled: true` setzt.
 - [ ] `public/app-ads.txt` nur befüllen, wenn eine App Werbung zeigt.
 
 ## Manuelle Schritte (GitHub & Cloudflare)
