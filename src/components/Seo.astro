@@ -1,35 +1,48 @@
 ---
 /**
- * SEO- und Social-Meta-Tags. Kanonische URLs zeigen immer auf https://2eno.dev,
- * auch wenn die Seite über eno2.dev (Redirect) oder lokal aufgerufen wird.
+ * SEO- und Social-Meta-Tags. Kanonische URLs zeigen immer auf https://2eno.dev.
+ * Für mehrsprachige Seiten werden hreflang-Alternativen ausgegeben (x-default = Englisch).
  */
 import { site } from '../site.config';
+import { languages, ogLocale, type Lang } from '../i18n';
 
 export interface Props {
+  lang: Lang;
   title: string;
   description: string;
-  /** Absoluter oder site-relativer Pfad zu einem Vorschaubild (PNG/JPG empfohlen). */
+  /** Site-relative Pfade der Sprachversionen dieser Seite */
+  alternates?: Partial<Record<Lang, string>>;
   image?: string;
   imageAlt?: string;
   type?: 'website' | 'article';
   noindex?: boolean;
 }
 
-const { title, description, image = '/og-default.png', imageAlt, type = 'website', noindex = false } =
+const { lang, title, description, alternates = {}, image = '/og-default.png', imageAlt, type = 'website', noindex = false } =
   Astro.props;
 
-const canonical = new URL(Astro.url.pathname, site.url).href;
-const imageUrl = new URL(image, site.url).href;
+const abs = (p: string) => new URL(p, site.url).href;
+const canonical = abs(Astro.url.pathname);
+const imageUrl = abs(image);
 const fullTitle = title === site.name ? site.name : `${title} · ${site.name}`;
+const alts = languages.filter((l) => alternates[l]).map((l) => ({ lang: l, href: abs(alternates[l]!) }));
+const xDefault = alternates.en ? abs(alternates.en) : undefined;
 ---
 
 <title>{fullTitle}</title>
 <meta name="description" content={description} />
 {noindex ? <meta name="robots" content="noindex, follow" /> : <link rel="canonical" href={canonical} />}
+{!noindex && alts.map((a) => <link rel="alternate" hreflang={a.lang} href={a.href} />)}
+{!noindex && alts.length > 1 && xDefault && <link rel="alternate" hreflang="x-default" href={xDefault} />}
 
 <meta property="og:type" content={type} />
 <meta property="og:site_name" content={site.name} />
-<meta property="og:locale" content={site.locale} />
+<meta property="og:locale" content={ogLocale[lang]} />
+{
+  languages
+    .filter((l) => l !== lang && alternates[l])
+    .map((l) => <meta property="og:locale:alternate" content={ogLocale[l]} />)
+}
 <meta property="og:title" content={fullTitle} />
 <meta property="og:description" content={description} />
 {!noindex && <meta property="og:url" content={canonical} />}

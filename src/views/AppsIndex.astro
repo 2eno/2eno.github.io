@@ -1,0 +1,74 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import AppCard from '../components/AppCard.astro';
+import { getApps } from '../lib/content';
+import { t, type Lang } from '../i18n';
+
+export interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const apps = await getApps();
+const names = apps.map((a) => a.data.name).join(', ');
+---
+
+<BaseLayout
+  lang={lang}
+  title="Apps"
+  description={`${t(lang, 'apps.description')} ${names}.`}
+  alternates={{ en: '/apps/', de: '/de/apps/' }}
+>
+  <section class="head">
+    <div class="backdrop" aria-hidden="true"></div>
+    <div class="container">
+      <p class="eyebrow">Apps</p>
+      <h1>{t(lang, 'apps.title')}</h1>
+      <p class="lead">{t(lang, 'apps.lead')}</p>
+    </div>
+  </section>
+  <div class="container list-wrap">
+    {
+      apps.length > 0 ? (
+        <ul class="apps-grid">
+          {apps.map((app) => (
+            <li>
+              <AppCard app={app} lang={lang} headingLevel="h2" large={app.data.featured} />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>{t(lang, 'apps.none')}</p>
+      )
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  .head {
+    position: relative;
+    isolation: isolate;
+    padding-block: clamp(3rem, 8vw, 5.5rem) 2.5rem;
+  }
+  .lead {
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    max-width: 38rem;
+    margin: 0;
+  }
+  .list-wrap {
+    padding-bottom: clamp(3rem, 7vw, 5rem);
+  }
+  .apps-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  @media (max-width: 900px) {
+    .apps-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

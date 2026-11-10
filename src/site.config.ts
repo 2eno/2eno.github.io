@@ -9,28 +9,33 @@ export const site = {
   /** Kanonische Basis-URL (ohne Slash am Ende). Muss zu `site` in astro.config.mjs passen. */
   url: 'https://2eno.dev',
   name: '2eno.dev',
-  lang: 'de',
-  locale: 'de_DE',
-  /** Standard-Beschreibung, falls eine Seite keine eigene setzt. */
-  description:
-    'Android-Apps, Root-Module und Open-Source-Werkzeuge von 2eno – für Homelab, Smart Home und Kommandozeile. Ohne Tracker.',
-  author: '[DEIN NAME]',
-  intro:
-    'Ich baue Android-Apps, Root-Module und Werkzeuge für Homelab, Smart Home und Kommandozeile – quelloffen und ohne Tracker.',
+  description: {
+    en: 'Android apps, root modules and open-source tools by 2eno – for homelabs, smart homes and the command line. No trackers.',
+    de: 'Android-Apps, Root-Module und Open-Source-Werkzeuge von 2eno – für Homelab, Smart Home und Kommandozeile. Ohne Tracker.',
+  },
+  intro: {
+    en: 'I build Android apps, root modules and tools for homelabs, smart homes and the command line – open source and without trackers.',
+    de: 'Ich baue Android-Apps, Root-Module und Werkzeuge für Homelab, Smart Home und Kommandozeile – quelloffen und ohne Tracker.',
+  },
   /** Links auf der Startseite und im Footer. `rel="me"` wird automatisch gesetzt. */
   links: [
     { label: 'GitHub', href: 'https://github.com/2eno' },
     // { label: 'Mastodon', href: 'https://[INSTANZ]/@[NAME]' },
-    // { label: 'Google Play', href: 'https://play.google.com/store/apps/dev?id=[DEVELOPER-ID]' },
   ],
+  /**
+   * Läuft 2eno.dev über den Cloudflare-Proxy (orange Wolke)?
+   * Nötig für die Sprachweiche nach Land (siehe README). Steuert den Text der
+   * Datenschutzerklärung – muss zur tatsächlichen DNS-Einstellung passen!
+   */
+  cloudflareProxy: true,
   /** Kontakt für Impressum, Datenschutz und App-Privacy-Seiten. */
   contact: {
     name: '[VORNAME NACHNAME]',
     street: '[STRASSE HAUSNUMMER]',
     city: '[PLZ ORT]',
-    country: 'Deutschland',
+    country: { en: 'Germany', de: 'Deutschland' },
     email: '[E-MAIL-ADRESSE]',
-    /** Optional, laut DDG nicht zwingend, aber „schnelle Kontaktaufnahme“ muss möglich sein. */
+    /** Optional; eine schnelle Kontaktaufnahme muss aber möglich sein (§ 5 DDG). */
     phone: '[TELEFON – optional]',
   },
 } as const;

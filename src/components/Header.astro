@@ -1,22 +1,30 @@
 ---
 import { site } from '../site.config';
 import Icon from './Icon.astro';
+import { languages, langName, localePath, switchHref, t, type Lang } from '../i18n';
 
+export interface Props {
+  lang: Lang;
+  alternates?: Partial<Record<Lang, string>>;
+}
+
+const { lang, alternates = {} } = Astro.props;
 const nav = [
-  { href: '/apps/', label: 'Apps' },
-  { href: '/#projekte', label: 'Projekte' },
+  { href: localePath(lang, '/apps/'), label: t(lang, 'nav.apps') },
+  { href: `${localePath(lang, '/')}#projects`, label: t(lang, 'nav.projects') },
 ];
 const path = Astro.url.pathname;
 const github = site.links.find((l) => l.label === 'GitHub');
+const other = languages.filter((l) => l !== lang);
 ---
 
 <header class="site-header">
   <div class="container inner">
-    <a href="/" class="brand" aria-label={`${site.name} – zur Startseite`}>
+    <a href={localePath(lang, '/')} class="brand" aria-label={`${site.name} – ${t(lang, 'brand.home')}`}>
       <img src="/favicon.svg" alt="" width="30" height="30" />
       <span>2eno<span class="tld">.dev</span></span>
     </a>
-    <nav aria-label="Hauptnavigation">
+    <nav aria-label={t(lang, 'nav.main')}>
       <ul>
         {
           nav.map((item) => (
@@ -28,9 +36,21 @@ const github = site.links.find((l) => l.label === 'GitHub');
           ))
         }
         {
+          other.map((target) => {
+            const href = switchHref(target, alternates[target] ?? localePath(target, '/'));
+            return (
+              <li>
+                <a class="lang-switch" href={href} hreflang={target} lang={target} aria-label={langName[target]}>
+                  {target.toUpperCase()}
+                </a>
+              </li>
+            );
+          })
+        }
+        {
           github && (
             <li>
-              <a class="icon-link" href={github.href} rel="me noopener" aria-label="GitHub-Profil">
+              <a class="icon-link" href={github.href} rel="me noopener" aria-label={t(lang, 'nav.github')}>
                 <Icon name="github" size={20} />
               </a>
             </li>
@@ -102,7 +122,33 @@ const github = site.links.find((l) => l.label === 'GitHub');
     color: var(--text);
     background: var(--bg-muted);
   }
+  .lang-switch {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    border: 1px solid var(--border);
+    padding: 0.3rem 0.6rem;
+  }
   .icon-link {
     padding: 0.5rem;
+  }
+  @media (max-width: 480px) {
+    .inner {
+      gap: 0.5rem;
+    }
+    .tld {
+      display: none;
+    }
+    ul {
+      gap: 0.1rem;
+    }
+    nav a {
+      padding-inline: 0.5rem;
+      font-size: 0.9rem;
+    }
+    .icon-link {
+      padding: 0.4rem;
+    }
   }
 </style>

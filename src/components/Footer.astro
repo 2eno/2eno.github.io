@@ -1,43 +1,47 @@
 ---
 import { site } from '../site.config';
+import { localePath, t, type Lang } from '../i18n';
+import { legalPaths } from '../lib/content';
+
+export interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
 const year = new Date().getFullYear();
 ---
 
 <footer class="site-footer">
   <div class="container inner">
     <div class="about">
-      <a href="/" class="brand">
+      <a href={localePath(lang, '/')} class="brand">
         <img src="/favicon.svg" alt="" width="26" height="26" />
         2eno.dev
       </a>
-      <p class="muted">
-        Android-Apps und Open-Source-Werkzeuge. Statisch gebaut, ohne Cookies, Tracker und
-        Fremd-Ressourcen.
-      </p>
+      <p class="muted">{t(lang, 'footer.about')}</p>
     </div>
-    <nav aria-label="Seiten">
-      <h2 class="col-title">Seiten</h2>
+    <nav aria-label={t(lang, 'footer.pages')}>
+      <h2 class="col-title">{t(lang, 'footer.pages')}</h2>
       <ul>
-        <li><a href="/">Start</a></li>
-        <li><a href="/apps/">Apps</a></li>
-        <li><a href="/#projekte">Projekte</a></li>
+        <li><a href={localePath(lang, '/')}>{t(lang, 'nav.home')}</a></li>
+        <li><a href={localePath(lang, '/apps/')}>{t(lang, 'nav.apps')}</a></li>
+        <li><a href={`${localePath(lang, '/')}#projects`}>{t(lang, 'nav.projects')}</a></li>
       </ul>
     </nav>
-    <nav aria-label="Rechtliches">
-      <h2 class="col-title">Rechtliches</h2>
+    <nav aria-label={t(lang, 'footer.legal')}>
+      <h2 class="col-title">{t(lang, 'footer.legal')}</h2>
       <ul>
-        <li><a href="/impressum/">Impressum</a></li>
-        <li><a href="/datenschutz/">Datenschutz</a></li>
+        <li><a href={legalPaths.imprint[lang]}>{t(lang, 'legal.imprint')}</a></li>
+        <li><a href={legalPaths.privacy[lang]}>{t(lang, 'legal.privacy')}</a></li>
       </ul>
     </nav>
-    <nav aria-label="Profile">
-      <h2 class="col-title">Profile</h2>
+    <nav aria-label={t(lang, 'footer.profiles')}>
+      <h2 class="col-title">{t(lang, 'footer.profiles')}</h2>
       <ul>
         {
-          site.links.map((l) => (
+          site.links.map((link) => (
             <li>
-              <a href={l.href} rel="me noopener">
-                {l.label}
+              <a href={link.href} rel="me noopener">
+                {link.label}
               </a>
             </li>
           ))
@@ -47,7 +51,7 @@ const year = new Date().getFullYear();
   </div>
   <div class="container bottom">
     <p>© {year} 2eno</p>
-    <p>Gebaut mit Astro · Gehostet auf GitHub Pages</p>
+    <p>{t(lang, 'footer.built')}</p>
   </div>
 </footer>
 

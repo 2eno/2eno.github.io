@@ -1,14 +1,16 @@
 ---
 import { Image } from 'astro:assets';
 import Icon from './Icon.astro';
-import { languageColor, type Project } from '../lib/content';
+import { categoryLabel, languageColor, type Project } from '../lib/content';
+import { l, t, type Lang } from '../i18n';
 
 export interface Props {
   project: Project;
+  lang: Lang;
   large?: boolean;
 }
 
-const { project, large = false } = Astro.props;
+const { project, lang, large = false } = Astro.props;
 const { name, description, url, tags, language, license, category, image, imageAlt } = project.data;
 const external = /^https?:\/\//.test(url);
 ---
@@ -17,25 +19,25 @@ const external = /^https?:\/\//.test(url);
   {
     image && (
       <div class="media">
-        <Image src={image} alt={imageAlt ?? ''} widths={[400, 800]} sizes="(max-width: 700px) 100vw, 400px" />
+        <Image src={image} alt={l(imageAlt, lang) ?? ''} widths={[400, 800]} sizes="(max-width: 700px) 100vw, 400px" />
       </div>
     )
   }
   <div class="body">
-    <p class="category">{category}</p>
+    <p class="category">{categoryLabel[category][lang]}</p>
     <h3>
       <a class="card-link" href={url} rel={external ? 'noopener' : undefined}>
-        {name}
-        {external && <span class="visually-hidden"> (auf GitHub)</span>}
+        {l(name, lang)}
+        {external && <span class="visually-hidden"> {t(lang, 'card.onGithub')}</span>}
       </a>
       {external && <Icon name="arrow-up-right" size={18} class="ext" />}
     </h3>
-    <p class="muted">{description}</p>
+    <p class="muted">{l(description, lang)}</p>
     {
       tags.length > 0 && (
-        <ul class="tag-list" aria-label="Schlagworte">
-          {tags.slice(0, large ? 5 : 3).map((t) => (
-            <li class="tag">{t}</li>
+        <ul class="tag-list" aria-label={t(lang, 'card.tags')}>
+          {tags.slice(0, large ? 5 : 3).map((tag) => (
+            <li class="tag">{l(tag, lang)}</li>
           ))}
         </ul>
       )

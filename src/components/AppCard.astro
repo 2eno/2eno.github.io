@@ -1,16 +1,18 @@
 ---
 import { Image } from 'astro:assets';
 import Icon from './Icon.astro';
-import { appUrl, statusLabel, type App } from '../lib/content';
+import { appUrl, type App } from '../lib/content';
+import { l, t, type Lang } from '../i18n';
 
 export interface Props {
   app: App;
+  lang: Lang;
   headingLevel?: 'h2' | 'h3';
   /** Große Karte mit Screenshot-Vorschau */
   large?: boolean;
 }
 
-const { app, headingLevel: Heading = 'h3', large = false } = Astro.props;
+const { app, lang, headingLevel: Heading = 'h3', large = false } = Astro.props;
 const { name, tagline, description, icon, status, tags, accent, screenshots, requirements } = app.data;
 const preview = large ? screenshots[0] : undefined;
 ---
@@ -22,22 +24,22 @@ const preview = large ? screenshots[0] : undefined;
       <Image src={icon} alt="" width={64} height={64} densities={[1, 2]} class="icon" />
       <div class="title-wrap">
         <Heading class="title">
-          <a class="card-link" href={appUrl(app)}>{name}</a>
+          <a class="card-link" href={appUrl(app, lang)}>{name}</a>
         </Heading>
-        <p class="tagline">{tagline}</p>
+        <p class="tagline">{l(tagline, lang)}</p>
       </div>
     </div>
-    <p class="muted desc">{description}</p>
+    <p class="muted desc">{l(description, lang)}</p>
     <div class="meta">
-      <span class="badge" data-status={status}>{statusLabel[status]}</span>
-      {requirements.length > 0 && <span class="tag">{requirements[0]}</span>}
+      <span class="badge" data-status={status}>{t(lang, `status.${status}`)}</span>
+      {requirements.length > 0 && <span class="tag">{l(requirements[0], lang)}</span>}
       {
-        tags.slice(0, large ? 3 : 2).map((t) => (
-          <span class="tag">{t}</span>
+        tags.slice(0, large ? 3 : 2).map((tag) => (
+          <span class="tag">{l(tag, lang)}</span>
         ))
       }
     </div>
-    <span class="more" aria-hidden="true">Mehr erfahren <Icon name="arrow-right" size={16} /></span>
+    <span class="more" aria-hidden="true">{t(lang, 'card.more')} <Icon name="arrow-right" size={16} /></span>
   </div>
   {
     preview && (

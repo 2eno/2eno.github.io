@@ -1,0 +1,170 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import LegalNotice from '../components/LegalNotice.astro';
+import Value from '../components/Value.astro';
+import { appPrivacyUrl, getApps, legalPaths } from '../lib/content';
+import { site } from '../site.config';
+import type { Lang } from '../i18n';
+
+export interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const en = lang === 'en';
+const tx = (english: string, german: string) => (en ? english : german);
+const c = site.contact;
+const apps = await getApps();
+let n = 0;
+const num = () => `${++n}.`;
+---
+
+<BaseLayout
+  lang={lang}
+  title={tx('Privacy policy', 'Datenschutzerklärung')}
+  description={tx('Privacy policy for the website 2eno.dev.', 'Datenschutzerklärung für die Website 2eno.dev.')}
+  alternates={legalPaths.privacy}
+>
+  <article class="container section prose">
+    <h1>{tx('Privacy policy', 'Datenschutzerklärung')}</h1>
+    <p class="muted">{tx('Last updated', 'Stand')}: <mark class="placeholder">{tx('[DATE]', '[DATUM]')}</mark></p>
+
+    <LegalNotice lang={lang} germanHref={en ? legalPaths.privacy.de : undefined} />
+
+    <h2>{num()} {tx('Controller', 'Verantwortlicher')}</h2>
+    <address>
+      <Value value={c.name} /><br />
+      <Value value={c.street} /><br />
+      <Value value={c.city} /><br />
+      {c.country[lang]}<br />
+      {tx('Email', 'E-Mail')}: <Value value={c.email} />
+    </address>
+
+    <h2>{num()} {tx('General', 'Grundsätzliches')}</h2>
+    <p>
+      {tx('This is a static website. It uses', 'Diese Website ist eine statische Website. Sie verwendet')}{' '}
+      <strong>{tx('no cookies', 'keine Cookies')}</strong>,{' '}
+      <strong>{tx('no analytics or tracking services', 'keine Analyse- oder Tracking-Dienste')}</strong>{' '}
+      {tx('and loads', 'und lädt')}{' '}
+      <strong>{tx('no content from third parties', 'keine Inhalte von Drittanbietern')}</strong>{' '}
+      {
+        tx(
+          '(e.g. fonts, scripts or content delivery networks). The font is served from this website itself.',
+          '(z. B. Schriftarten, Skripte oder Content-Delivery-Networks). Die Schriftart wird von dieser Website selbst ausgeliefert.',
+        )
+      }
+    </p>
+
+    <h2>{num()} {tx('Hosting by GitHub Pages', 'Hosting durch GitHub Pages')}</h2>
+    <p>
+      {
+        tx(
+          'This website is hosted on GitHub Pages, a service of GitHub B.V., Prins Bernhardplein 200, 1097 JB Amsterdam, Netherlands (a subsidiary of GitHub, Inc., USA). When you visit the website, GitHub processes technically necessary data, in particular your IP address, date and time of access, the page requested and browser and operating system information (server log files). This serves the secure and stable provision of the website.',
+          'Diese Website wird bei GitHub Pages gehostet, einem Dienst der GitHub B.V., Prins Bernhardplein 200, 1097 JB Amsterdam, Niederlande (Tochtergesellschaft der GitHub, Inc., USA). Beim Aufruf der Website verarbeitet GitHub technisch notwendige Daten, insbesondere deine IP-Adresse, Datum und Uhrzeit des Zugriffs, die aufgerufene Seite sowie Browser- und Betriebssysteminformationen (Server-Logfiles). Dies dient der sicheren und stabilen Bereitstellung der Website.',
+        )
+      }
+    </p>
+    <p>
+      {
+        tx(
+          'The legal basis is Art. 6(1)(f) GDPR; my legitimate interest is the reliable presentation of the website. A transfer to the USA is possible; GitHub is certified under the EU-US Data Privacy Framework.',
+          'Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO; mein berechtigtes Interesse liegt in einer zuverlässigen Darstellung der Website. Eine Übermittlung in die USA ist möglich; GitHub ist unter dem EU-US Data Privacy Framework zertifiziert.',
+        )
+      }{' '}
+      <mark class="placeholder">{tx('[Check current certification status]', '[Aktuellen Zertifizierungsstatus prüfen]')}</mark>{' '}
+      {tx('More information:', 'Weitere Informationen:')}{' '}
+      <a
+        href={`https://docs.github.com/${lang}/site-policy/privacy-policies/github-general-privacy-statement`}
+        rel="noopener">{tx('GitHub’s privacy statement', 'Datenschutzerklärung von GitHub')}</a
+      >.
+    </p>
+
+    <h2>{num()} {tx('Domain, DNS and delivery via Cloudflare', 'Domain, DNS und Auslieferung über Cloudflare')}</h2>
+    {
+      site.cloudflareProxy ? (
+        <p>
+          {tx(
+            'The domains 2eno.dev and eno2.dev are registered with Cloudflare, Inc., 101 Townsend St., San Francisco, CA 94107, USA, which also provides DNS. Requests to this website pass through Cloudflare’s network before they reach GitHub Pages. Cloudflare processes the connection data required for this (in particular your IP address and the requested address). From the IP address, Cloudflare determines the country you are visiting from; visitors from Germany, Austria and Switzerland are redirected to the German version of the start page. No cookie is set for this and no profile is created. Requests to eno2.dev are redirected to 2eno.dev.',
+            'Die Domains 2eno.dev und eno2.dev sind bei der Cloudflare, Inc., 101 Townsend St., San Francisco, CA 94107, USA registriert, die auch die DNS-Auflösung übernimmt. Aufrufe dieser Website laufen durch das Netzwerk von Cloudflare, bevor sie GitHub Pages erreichen. Dabei verarbeitet Cloudflare die dafür nötigen Verbindungsdaten (insbesondere deine IP-Adresse und die aufgerufene Adresse). Aus der IP-Adresse ermittelt Cloudflare das Land, aus dem du die Seite aufrufst; Besucher:innen aus Deutschland, Österreich und der Schweiz werden auf die deutsche Fassung der Startseite weitergeleitet. Dafür wird kein Cookie gesetzt und kein Profil gebildet. Aufrufe von eno2.dev werden auf 2eno.dev weitergeleitet.',
+          )}{' '}
+          {tx(
+            'The legal basis is Art. 6(1)(f) GDPR; my legitimate interest is the secure delivery of the website in a suitable language. Cloudflare is certified under the EU-US Data Privacy Framework.',
+            'Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO; mein berechtigtes Interesse liegt in der sicheren Auslieferung der Website in passender Sprache. Cloudflare ist unter dem EU-US Data Privacy Framework zertifiziert.',
+          )}{' '}
+          <mark class="placeholder">{tx('[Check current certification status and data processing agreement]', '[Zertifizierungsstatus und Auftragsverarbeitungsvertrag prüfen]')}</mark>{' '}
+          {tx('More information:', 'Weitere Informationen:')}{' '}
+          <a href="https://www.cloudflare.com/privacypolicy/" rel="noopener">
+            {tx('Cloudflare’s privacy policy', 'Datenschutzerklärung von Cloudflare')}
+          </a>
+          .
+        </p>
+      ) : (
+        <p>
+          {tx(
+            'The domains 2eno.dev and eno2.dev are registered with Cloudflare, Inc., 101 Townsend St., San Francisco, CA 94107, USA, which also provides DNS. During name resolution, Cloudflare may process your IP address or that of your DNS resolver. Requests to eno2.dev are redirected to 2eno.dev via Cloudflare. The content of 2eno.dev is not delivered through Cloudflare proxies (“DNS only”). The legal basis is Art. 6(1)(f) GDPR.',
+            'Die Domains 2eno.dev und eno2.dev sind bei der Cloudflare, Inc., 101 Townsend St., San Francisco, CA 94107, USA registriert, die auch die DNS-Auflösung übernimmt. Bei der Namensauflösung kann Cloudflare deine IP-Adresse bzw. die deines DNS-Resolvers verarbeiten. Aufrufe von eno2.dev werden über Cloudflare auf 2eno.dev weitergeleitet. Die Inhalte von 2eno.dev werden nicht über Cloudflare-Proxys ausgeliefert („DNS only“). Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO.',
+          )}{' '}
+          {tx('More information:', 'Weitere Informationen:')}{' '}
+          <a href="https://www.cloudflare.com/privacypolicy/" rel="noopener">
+            {tx('Cloudflare’s privacy policy', 'Datenschutzerklärung von Cloudflare')}
+          </a>
+          .
+        </p>
+      )
+    }
+
+    <h2>{num()} {tx('Contacting me', 'Kontaktaufnahme')}</h2>
+    <p>
+      {
+        tx(
+          'If you contact me by email, I process your details (email address, content of the message) to handle your request. The legal basis is Art. 6(1)(b) GDPR if your request relates to a contract, otherwise Art. 6(1)(f) GDPR. The data is deleted as soon as it is no longer needed and no statutory retention obligations apply.',
+          'Wenn du mich per E-Mail kontaktierst, verarbeite ich deine Angaben (E-Mail-Adresse, Inhalt der Nachricht) zur Bearbeitung deiner Anfrage. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, sofern deine Anfrage mit einem Vertrag zusammenhängt, ansonsten Art. 6 Abs. 1 lit. f DSGVO. Die Daten werden gelöscht, sobald sie für die Bearbeitung nicht mehr erforderlich sind und keine gesetzlichen Aufbewahrungspflichten bestehen.',
+        )
+      }
+    </p>
+
+    <h2>{num()} {tx('External links', 'Externe Links')}</h2>
+    <p>
+      {
+        tx(
+          'This website contains links to other websites (e.g. GitHub). Data is only transmitted to the respective provider once you click such a link. Their privacy policy then applies.',
+          'Diese Website enthält Links zu anderen Websites (z. B. GitHub). Erst wenn du einen solchen Link anklickst, werden Daten an den jeweiligen Anbieter übertragen. Für dessen Datenverarbeitung gilt die Datenschutzerklärung des jeweiligen Anbieters.',
+        )
+      }
+    </p>
+
+    {
+      apps.length > 0 && (
+        <>
+          <h2>
+            {num()} {tx('Privacy policies of the apps', 'Datenschutzerklärungen der Apps')}
+          </h2>
+          <p>{tx('My Android apps each have their own privacy policy:', 'Für meine Android-Apps gelten jeweils eigene Datenschutzerklärungen:')}</p>
+          <ul>
+            {apps.map((app) => (
+              <li>
+                <a href={appPrivacyUrl(app, lang)}>{app.data.name}</a>
+              </li>
+            ))}
+          </ul>
+        </>
+      )
+    }
+
+    <h2>{num()} {tx('Your rights', 'Deine Rechte')}</h2>
+    <p>
+      {
+        tx(
+          'You have the right of access (Art. 15 GDPR), rectification (Art. 16), erasure (Art. 17), restriction of processing (Art. 18), data portability (Art. 20) and the right to object to processing based on legitimate interests (Art. 21). You can also lodge a complaint with a data protection supervisory authority (Art. 77 GDPR), e.g.',
+          'Du hast das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18), Datenübertragbarkeit (Art. 20) sowie das Recht, der Verarbeitung aufgrund berechtigter Interessen zu widersprechen (Art. 21). Außerdem kannst du dich bei einer Datenschutz-Aufsichtsbehörde beschweren (Art. 77 DSGVO), z. B.',
+        )
+      }{' '}
+      <mark class="placeholder">{tx('[competent state data protection authority]', '[zuständige Landesdatenschutzbehörde]')}</mark>.
+    </p>
+  </article>
+</BaseLayout>
+
+<style>
+  address {
+    font-style: normal;
+  }
+</style>

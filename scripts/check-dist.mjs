@@ -99,7 +99,22 @@ for (const file of htmlFiles) {
   }
 }
 
-// 3. Sitemap-URLs existieren
+// 3. Sprachen: <html lang> passt zum Pfad, jede Seite hat ihr Gegenstück in der anderen Sprache
+for (const file of htmlFiles) {
+  const rel = relative(DIST, file);
+  if (rel === '404.html') continue;
+  const html = await readFile(file, 'utf8');
+  const lang = html.match(/<html lang="([a-z]+)"/)?.[1];
+  const expected = rel.startsWith('de/') ? 'de' : 'en';
+  if (lang !== expected) errors.push(`${rel}: <html lang="${lang}">, erwartet "${expected}"`);
+  if (!html.includes('noindex')) {
+    for (const want of ['en', 'de']) {
+      if (!html.includes(`hreflang="${want}"`)) errors.push(`${rel}: hreflang="${want}" fehlt`);
+    }
+  }
+}
+
+// 4. Sitemap-URLs existieren
 const sitemap = await readFile(join(DIST, 'sitemap.xml'), 'utf8').catch(() => '');
 for (const [, loc] of sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)) {
   if (!loc.startsWith(SITE + '/')) errors.push(`sitemap: fremde URL ${loc}`);

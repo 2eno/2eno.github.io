@@ -1,12 +1,20 @@
 /**
  * Content-Schema für Apps und Projekte.
  *
- * Neue App = neue Datei `src/content/apps/<appname>.md`.
- * Der Dateiname (ohne .md) wird zum URL-Slug: /apps/<appname>/
+ * Neue App = neue Datei `src/content/apps/<appname>.md` (Vorlage: `_vorlage.md`).
+ * Der Dateiname (ohne .md) wird zum URL-Slug: /apps/<appname>/ bzw. /de/apps/<appname>/
+ *
+ * Übersetzbare Felder (Typ `text` unten) sind entweder ein einfacher String
+ * (gilt für beide Sprachen, z. B. „Kotlin“) oder ein Objekt `{ en: …, de: … }`.
  */
 import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
+
+/** Sprachneutraler String oder { en, de } */
+const text = z.union([z.string(), z.object({ en: z.string(), de: z.string() })]);
+/** Absätze für längere Texte (Inline-Markdown: **fett**, `code`, [Link](url)) */
+const paragraphs = z.object({ en: z.array(z.string()), de: z.array(z.string()) });
 
 /** SHA-256-Zertifikats-Fingerprint im Format „AB:CD:…“ (32 Byte) oder ein Platzhalter in [eckigen Klammern]. */
 const fingerprint = z
@@ -27,11 +35,13 @@ const apps = defineCollection({
       packageName: z
         .string()
         .regex(/^dev\.eno2\.[a-z][a-z0-9_]*$/, 'Paketname muss dem Schema dev.eno2.<appname> folgen.'),
-      /** Ein Satz fürs Hero, knackig (z. B. „virt-manager für die Hosentasche“) */
-      tagline: z.string().max(80),
-      /** Kurzbeschreibung (Hero, Karte, Meta-Description). Ideal: max. ~160 Zeichen. */
-      description: z.string().max(200),
-      /** Link zum Play-Store-Eintrag. Weglassen, solange die App noch nicht veröffentlicht ist. */
+      /** Ein knackiger Satz fürs Hero */
+      tagline: text,
+      /** Kurzbeschreibung (Hero, Karte, Meta-Description), ideal max. ~160 Zeichen */
+      description: text,
+      /** Ausführliche Beschreibung als Absätze */
+      about: paragraphs,
+      /** Link zum Play-Store-Eintrag. Weglassen, solange die App nicht im Play Store ist. */
       playStoreUrl: z.url().optional(),
       /** Download außerhalb von Google Play, z. B. GitHub Releases */
       downloadUrl: z.url().optional(),
@@ -41,36 +51,29 @@ const apps = defineCollection({
         .string()
         .regex(/^#[0-9a-fA-F]{6}$/)
         .default('#6366f1'),
+      /** App-Icon, relativ zur Markdown-Datei (z. B. ../../assets/apps/<appname>/icon.png) */
+      icon: image(),
       /** Mindestversion, z. B. „Android 8.0“ */
       minAndroid: z.string().optional(),
       license: z.string().optional(),
-      /** Voraussetzungen, z. B. „Root-Zugriff“ */
-      requirements: z.array(z.string()).default([]),
-      /** Auf der Startseite groß hervorheben */
-      featured: z.boolean().default(false),
-      /** App-Icon, relativ zur Markdown-Datei (z. B. ../../assets/apps/<appname>/icon.png) */
-      icon: image(),
+      /** Voraussetzungen, z. B. Root-Zugriff */
+      requirements: z.array(text).default([]),
       /** Optionaler Link zum Quellcode */
       repo: z.url().optional(),
-      tags: z.array(z.string()).default([]),
-      /** Sortierung auf Start- und Übersichtsseite (kleiner = weiter vorne) */
+      tags: z.array(text).default([]),
+      /** Auf der Startseite groß hervorheben */
+      featured: z.boolean().default(false),
+      /** Sortierung (kleiner = weiter vorne) */
       order: z.number().default(100),
       /** Ausblenden, ohne die Datei zu löschen */
       draft: z.boolean().default(false),
-      features: z
-        .array(
-          z.object({
-            title: z.string(),
-            description: z.string(),
-          }),
-        )
-        .default([]),
+      features: z.array(z.object({ title: text, description: text })).default([]),
       screenshots: z
         .array(
           z.object({
             src: image(),
             /** Pflicht: beschreibender Alt-Text (Barrierefreiheit) */
-            alt: z.string().min(1),
+            alt: text,
           }),
         )
         .default([]),
@@ -89,73 +92,63 @@ const apps = defineCollection({
         collectsPersonalData: z.boolean(),
         /** Erhält der Entwickler (also du) irgendwelche Daten? */
         developerReceivesData: z.boolean().default(false),
-        /** Welche Daten werden verarbeitet, wozu, wo, und werden sie geteilt? */
         dataCollected: z
           .array(
             z.object({
-              type: z.string(),
-              purpose: z.string(),
-              /** Wo werden die Daten verarbeitet/gespeichert, z. B. „nur lokal auf dem Gerät“ */
-              storage: z.string(),
+              type: text,
+              purpose: text,
+              /** Wo werden die Daten verarbeitet/gespeichert */
+              storage: text,
               sharedWithThirdParties: z.boolean().default(false),
               optional: z.boolean().default(false),
             }),
           )
           .default([]),
-        /** Android-Berechtigungen und Begründung */
-        permissions: z
-          .array(
-            z.object({
-              name: z.string(),
-              reason: z.string(),
-            }),
-          )
-          .default([]),
-        /** Eingebundene Drittanbieter (SDKs, APIs, Werbenetzwerke, Crash-Reporting …) */
+        permissions: z.array(z.object({ name: z.string(), reason: text })).default([]),
         thirdPartyServices: z
           .array(
             z.object({
               name: z.string(),
-              provider: z.string(),
-              purpose: z.string(),
+              provider: text,
+              purpose: text,
               privacyPolicyUrl: z.url(),
             }),
           )
           .default([]),
         containsAds: z.boolean().default(false),
-        /** Ist die Netzwerk-Kommunikation verschlüsselt (Data-Safety-Formular)? */
         encryptedInTransit: z.boolean().default(true),
         /** Erläuterung zur Übertragung (überschreibt den Standardtext) */
-        transportNote: z.string().optional(),
+        transportNote: text.optional(),
         /** Wie können Nutzer:innen ihre Daten löschen? */
-        dataDeletion: z.string().optional(),
+        dataDeletion: text.optional(),
         /** Freitext für Besonderheiten */
-        notes: z.string().optional(),
+        notes: text.optional(),
       }),
     }),
 });
 
 const projects = defineCollection({
   loader: glob({ pattern: '[^_]*.md', base: './src/content/projects' }),
-  schema: ({ image }) => z.object({
-    name: z.string(),
-    description: z.string().max(260),
-    /** Ziel der Karte: Landingpage (z. B. /<reponame>/) oder Repo-URL */
-    url: z.string(),
-    repo: z.url().optional(),
-    /** Hauptsprache, z. B. „Kotlin“ (farbiger Punkt wie auf GitHub) */
-    language: z.string().optional(),
-    license: z.string().optional(),
-    category: z.enum(['Android', 'Modding', 'Hardware', 'Smart Home', 'CLI', 'Web']),
-    /** Optionales Vorschaubild */
-    image: image().optional(),
-    imageAlt: z.string().optional(),
-    tags: z.array(z.string()).default([]),
-    /** Größere Karte auf der Startseite */
-    featured: z.boolean().default(false),
-    order: z.number().default(100),
-    draft: z.boolean().default(false),
-  }),
+  schema: ({ image }) =>
+    z.object({
+      name: text,
+      description: text,
+      /** Ziel der Karte: Landingpage (z. B. /<reponame>/) oder Repo-URL */
+      url: z.string(),
+      repo: z.url().optional(),
+      /** Hauptsprache, z. B. „Kotlin“ (farbiger Punkt wie auf GitHub) */
+      language: z.string().optional(),
+      license: z.string().optional(),
+      category: z.enum(['Android', 'Modding', 'Hardware', 'Smart Home', 'CLI', 'Web']),
+      /** Optionales Vorschaubild */
+      image: image().optional(),
+      imageAlt: text.optional(),
+      tags: z.array(text).default([]),
+      /** Größere Karte auf der Startseite */
+      featured: z.boolean().default(false),
+      order: z.number().default(100),
+      draft: z.boolean().default(false),
+    }),
 });
 
 export const collections = { apps, projects };

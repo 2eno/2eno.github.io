@@ -1,0 +1,310 @@
+---
+/**
+ * Datenschutzerklärung pro App (für die Google Play Console).
+ * Wird aus dem `privacy`-Block der App-Markdown-Datei generiert.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import LegalNotice from '../components/LegalNotice.astro';
+import Value from '../components/Value.astro';
+import { appPrivacyUrl, appUrl, type App } from '../lib/content';
+import { site } from '../site.config';
+import { formatDate, l, type Lang } from '../i18n';
+
+export interface Props {
+  app: App;
+  lang: Lang;
+}
+
+const { app, lang } = Astro.props;
+const { name, packageName, playStoreUrl, privacy: p } = app.data;
+const c = site.contact;
+const en = lang === 'en';
+/** Sprachweiche für die Fließtexte dieser Seite */
+const tx = (english: string, german: string) => (en ? english : german);
+const githubPrivacy = en
+  ? 'https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement'
+  : 'https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement';
+const yes = tx('Yes', 'Ja');
+const no = tx('No', 'Nein');
+---
+
+<BaseLayout
+  lang={lang}
+  title={tx(`Privacy policy – ${name}`, `Datenschutzerklärung – ${name}`)}
+  description={tx(
+    `Privacy policy of the Android app ${name} (${packageName}).`,
+    `Datenschutzerklärung der Android-App ${name} (${packageName}).`,
+  )}
+  alternates={{ en: appPrivacyUrl(app, 'en'), de: appPrivacyUrl(app, 'de') }}
+>
+  <article class="container section prose">
+    <p class="muted"><a href={appUrl(app, lang)}>← {tx('Back to', 'Zurück zu')} {name}</a></p>
+    <h1>{tx(`Privacy policy for the app “${name}”`, `Datenschutzerklärung für die App „${name}“`)}</h1>
+    <p class="muted">
+      {tx('Package name', 'Paketname')}: <code>{packageName}</code> · {tx('Last updated', 'Stand')}:
+      {formatDate(p.lastUpdated, lang)}
+    </p>
+
+    <LegalNotice lang={lang} germanHref={en ? appPrivacyUrl(app, 'de') : undefined} />
+
+    <h2>1. {tx('Controller', 'Verantwortlicher')}</h2>
+    <p>
+      {
+        tx(
+          'The controller within the meaning of the General Data Protection Regulation (GDPR) is:',
+          'Verantwortlich für die Datenverarbeitung im Sinne der Datenschutz-Grundverordnung (DSGVO) ist:',
+        )
+      }
+    </p>
+    <address>
+      <Value value={c.name} /><br />
+      <Value value={c.street} /><br />
+      <Value value={c.city} /><br />
+      {c.country[lang]}<br />
+      {tx('Email', 'E-Mail')}: <Value value={c.email} />
+    </address>
+
+    <h2>2. {tx('Overview', 'Überblick')}</h2>
+    {
+      p.developerReceivesData ? (
+        <p>
+          {tx(
+            `The app “${name}” processes personal data only to the extent described below and only as far as necessary for the respective feature.`,
+            `Die App „${name}“ verarbeitet personenbezogene Daten nur in dem unten beschriebenen Umfang und nur, soweit dies für die jeweilige Funktion erforderlich ist.`,
+          )}
+        </p>
+      ) : (
+        <p>
+          <strong>
+            {tx(`The app “${name}” sends no data to me as the developer.`, `Die App „${name}“ sendet keine Daten an mich als Entwickler.`)}
+          </strong>{' '}
+          {tx(
+            'I don’t run any servers for this app and cannot see who uses it or how.',
+            'Ich betreibe keine Server für diese App und kann nicht sehen, wer sie nutzt oder wie.',
+          )}
+          {!p.containsAds &&
+            tx(' It contains no ads and no analytics or tracking services.', ' Sie enthält keine Werbung und keine Analyse- oder Tracking-Dienste.')}
+          {p.collectsPersonalData
+            ? tx(
+                ' The app processes the data listed below only on your device, or transmits it only to destinations you choose yourself.',
+                ' Die App verarbeitet die unten aufgeführten Daten ausschließlich auf deinem Gerät bzw. überträgt sie nur an die Ziele, die du selbst festlegst.',
+              )
+            : tx(' It does not process any personal data.', ' Sie verarbeitet keine personenbezogenen Daten.')}
+        </p>
+      )
+    }
+
+    {
+      p.dataCollected.length > 0 && (
+        <>
+          <h2>3. {tx('Data processed', 'Verarbeitete Daten')}</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">{tx('Data', 'Daten')}</th>
+                  <th scope="col">{tx('Purpose', 'Zweck')}</th>
+                  <th scope="col">{tx('Storage', 'Speicherort')}</th>
+                  <th scope="col">{tx('Shared', 'Weitergabe')}</th>
+                  <th scope="col">{tx('Optional', 'Optional')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {p.dataCollected.map((d) => (
+                  <tr>
+                    <th scope="row">{l(d.type, lang)}</th>
+                    <td>{l(d.purpose, lang)}</td>
+                    <td>{l(d.storage, lang)}</td>
+                    <td>{d.sharedWithThirdParties ? yes : no}</td>
+                    <td>{d.optional ? yes : no}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {p.collectsPersonalData && (
+            <p>
+              {tx(
+                'Unless stated otherwise, the legal basis is Art. 6(1)(b) GDPR (providing the app features you use) or, for optional features, your consent under Art. 6(1)(a) GDPR.',
+                'Rechtsgrundlage ist, soweit nicht anders angegeben, Art. 6 Abs. 1 lit. b DSGVO (Bereitstellung der von dir genutzten App-Funktionen) bzw. bei optionalen Funktionen deine Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO.',
+              )}{' '}
+              <mark class="placeholder">{tx('[Review legal bases and adjust if necessary]', '[Rechtsgrundlagen prüfen und ggf. anpassen]')}</mark>
+            </p>
+          )}
+        </>
+      )
+    }
+
+    <h2>4. {tx('Permissions', 'Berechtigungen')}</h2>
+    {
+      p.permissions.length > 0 ? (
+        <>
+          <p>{tx('The app requests the following Android permissions:', 'Die App fordert folgende Android-Berechtigungen an:')}</p>
+          <ul>
+            {p.permissions.map((perm) => (
+              <li>
+                <code>{perm.name}</code>: {l(perm.reason, lang)}
+              </li>
+            ))}
+          </ul>
+          <p>
+            {tx(
+              'You can revoke permissions at any time in the Android system settings.',
+              'Du kannst Berechtigungen jederzeit in den Android-Systemeinstellungen widerrufen.',
+            )}
+          </p>
+        </>
+      ) : (
+        <p>{tx('The app does not require any special Android permissions.', 'Die App benötigt keine besonderen Android-Berechtigungen.')}</p>
+      )
+    }
+
+    <h2>5. {tx('Third-party services', 'Dienste von Drittanbietern')}</h2>
+    {
+      p.thirdPartyServices.length > 0 ? (
+        <>
+          <p>{tx('The app communicates with the following third-party services:', 'Die App kommuniziert mit folgenden Diensten von Drittanbietern:')}</p>
+          <ul>
+            {p.thirdPartyServices.map((s) => (
+              <li>
+                <strong>{s.name}</strong> ({l(s.provider, lang)}): {l(s.purpose, lang)}.{' '}
+                <a href={s.privacyPolicyUrl} rel="noopener">
+                  {tx('Provider’s privacy policy', 'Datenschutzerklärung des Anbieters')}
+                </a>
+              </li>
+            ))}
+          </ul>
+          <p>
+            <mark class="placeholder">
+              {tx(
+                '[For each service, add the legal basis, any third-country transfer (e.g. USA) and the retention period]',
+                '[Für jeden Dienst Rechtsgrundlage, ggf. Drittlandübermittlung (z. B. USA) und Speicherdauer ergänzen]',
+              )}
+            </mark>
+          </p>
+        </>
+      ) : (
+        <p>
+          {tx(
+            'No third-party services (e.g. analytics or advertising SDKs) are integrated.',
+            'Es sind keine Dienste von Drittanbietern (z. B. Analyse- oder Werbe-SDKs) eingebunden.',
+          )}
+        </p>
+      )
+    }
+
+    <h2>6. {tx('Advertising', 'Werbung')}</h2>
+    <p>
+      {
+        p.containsAds
+          ? tx('The app contains ads. Details on the ad networks used are listed under “Third-party services”.', 'Die App enthält Werbung. Details zu den eingesetzten Werbenetzwerken findest du im Abschnitt „Dienste von Drittanbietern“.')
+          : tx('The app contains no ads.', 'Die App enthält keine Werbung.')
+      }
+    </p>
+
+    <h2>7. {tx('Distribution', 'Bezug der App')}</h2>
+    {
+      playStoreUrl ? (
+        <p>
+          {tx(
+            'The app is distributed via Google Play. When you download it, data (e.g. your Google account, device identifiers, time of download) is transmitted to Google. I have no influence on this. The controller is Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Ireland. More information:',
+            'Die App wird über Google Play vertrieben. Beim Herunterladen werden Daten (z. B. dein Google-Konto, Gerätekennungen, Zeitpunkt des Downloads) an Google übermittelt. Darauf habe ich keinen Einfluss. Verantwortlich ist die Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland. Weitere Informationen:',
+          )}{' '}
+          <a href="https://policies.google.com/privacy" rel="noopener">
+            {tx('Google’s privacy policy', 'Datenschutzerklärung von Google')}
+          </a>
+          .
+        </p>
+      ) : (
+        <p>
+          {tx(
+            'The app is provided via GitHub (source code and releases). When you download it, GitHub processes technically necessary data such as your IP address. I have no influence on this. More information:',
+            'Die App wird über GitHub bereitgestellt (Quellcode und Releases). Beim Herunterladen verarbeitet GitHub technisch notwendige Daten wie deine IP-Adresse. Darauf habe ich keinen Einfluss. Weitere Informationen:',
+          )}{' '}
+          <a href={githubPrivacy} rel="noopener">
+            {tx('GitHub’s privacy statement', 'Datenschutzerklärung von GitHub')}
+          </a>
+          .
+        </p>
+      )
+    }
+
+    <h2>8. {tx('Data transmission and security', 'Datenübertragung und Sicherheit')}</h2>
+    <p>
+      {
+        l(p.transportNote, lang) ??
+          (p.encryptedInTransit
+            ? tx('Whenever the app transmits data over the internet, it does so encrypted (TLS).', 'Sofern die App Daten über das Internet überträgt, geschieht dies ausschließlich verschlüsselt (TLS).')
+            : tx('The app’s network communication is not encrypted.', 'Die Netzwerkkommunikation der App ist nicht verschlüsselt.'))
+      }
+    </p>
+
+    <h2>9. {tx('Deleting your data', 'Löschung deiner Daten')}</h2>
+    <p>
+      {
+        l(p.dataDeletion, lang) ??
+          tx(
+            'You can delete all locally stored data by uninstalling the app or clearing its data in Android settings.',
+            'Du kannst alle lokal gespeicherten Daten löschen, indem du die App deinstallierst oder in den Android-Einstellungen die App-Daten löschst.',
+          )
+      }
+    </p>
+
+    {
+      p.notes && (
+        <>
+          <h2>{tx('Further notes', 'Weitere Hinweise')}</h2>
+          <p>{l(p.notes, lang)}</p>
+        </>
+      )
+    }
+
+    <h2>10. {tx('Your rights', 'Deine Rechte')}</h2>
+    <p>
+      {
+        tx(
+          'You have the right of access (Art. 15 GDPR), rectification (Art. 16), erasure (Art. 17), restriction of processing (Art. 18), data portability (Art. 20) and to object (Art. 21). You can withdraw consent at any time with effect for the future (Art. 7(3) GDPR). You also have the right to lodge a complaint with a data protection supervisory authority (Art. 77 GDPR), e.g. the authority of your place of residence or',
+          'Du hast das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18), Datenübertragbarkeit (Art. 20) und Widerspruch (Art. 21). Eine erteilte Einwilligung kannst du jederzeit mit Wirkung für die Zukunft widerrufen (Art. 7 Abs. 3 DSGVO). Außerdem hast du das Recht, dich bei einer Datenschutz-Aufsichtsbehörde zu beschweren (Art. 77 DSGVO), z. B. bei der Behörde deines Wohnorts oder',
+        )
+      }{' '}
+      <mark class="placeholder">
+        {tx('[competent state authority at the controller’s location]', '[zuständige Landesbehörde am Sitz des Verantwortlichen]')}
+      </mark>.
+    </p>
+    <p>{tx('For all requests, contact:', 'Wende dich für alle Anfragen an:')} <Value value={c.email} /></p>
+
+    <h2>11. {tx('Changes', 'Änderungen')}</h2>
+    <p>
+      {
+        tx(
+          'I update this privacy policy when the app or the legal situation changes. The version published here applies.',
+          'Ich passe diese Datenschutzerklärung an, wenn sich die App oder die Rechtslage ändert. Es gilt die jeweils hier veröffentlichte Fassung.',
+        )
+      }
+    </p>
+  </article>
+</BaseLayout>
+
+<style>
+  address {
+    font-style: normal;
+  }
+  .table-wrap {
+    overflow-x: auto;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.95rem;
+  }
+  th,
+  td {
+    text-align: left;
+    vertical-align: top;
+    padding: 0.5rem 0.6rem;
+    border-bottom: 1px solid var(--border);
+  }
+  thead th {
+    background: var(--bg-muted);
+  }
+</style>

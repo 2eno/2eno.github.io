@@ -1,16 +1,26 @@
 ---
+/** GitHub Pages kennt nur eine 404-Seite – daher zweisprachig. */
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { t } from '../i18n';
 ---
 
-<BaseLayout title="Seite nicht gefunden" description="Diese Seite existiert nicht." noindex>
+<BaseLayout lang="en" title="Page not found" description="This page doesn’t exist." noindex>
   <section class="container section center">
     <p class="code" aria-hidden="true">404</p>
-    <h1>Seite nicht gefunden</h1>
-    <p class="muted">Die angeforderte Seite gibt es nicht (mehr). Vielleicht hilft einer dieser Links:</p>
+    <h1>{t('en', 'notFound.title')}</h1>
+    <p class="muted">{t('en', 'notFound.text')}</p>
     <ul class="link-list">
-      <li><a class="button" href="/">Zur Startseite</a></li>
-      <li><a class="button secondary" href="/apps/">Alle Apps</a></li>
+      <li><a class="button" href="/?lang=en">{t('en', 'notFound.home')}</a></li>
+      <li><a class="button secondary" href="/apps/">{t('en', 'notFound.apps')}</a></li>
     </ul>
+    <div lang="de" class="de">
+      <h2>{t('de', 'notFound.title')}</h2>
+      <p class="muted">{t('de', 'notFound.text')}</p>
+      <ul class="link-list">
+        <li><a class="button secondary" href="/de/">{t('de', 'notFound.home')}</a></li>
+        <li><a class="button secondary" href="/de/apps/">{t('de', 'notFound.apps')}</a></li>
+      </ul>
+    </div>
   </section>
 </BaseLayout>
 
@@ -28,5 +38,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     margin: 0;
     line-height: 1;
     color: var(--accent);
+  }
+  .de {
+    margin-top: 3.5rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--border);
+  }
+  .de h2 {
+    font-size: 1.5rem;
   }
 </style>

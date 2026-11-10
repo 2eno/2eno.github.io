@@ -1,12 +1,44 @@
 ---
 /** Hinweisbox für Rechtstexte, die nur Vorlagen sind. Vor dem Livegang entfernen. */
+import type { Lang } from '../i18n';
+
+export interface Props {
+  lang: Lang;
+  /** Auf englischen Rechtsseiten: Verweis auf die maßgebliche deutsche Fassung */
+  germanHref?: string;
+}
+const { lang, germanHref } = Astro.props;
 ---
 
 <div class="notice" role="note">
-  <p>
-    <strong>Vorlage – keine Rechtsberatung.</strong> Dieser Text ist ein Muster mit
-    <mark class="placeholder">[Platzhaltern]</mark>. Ergänze deine Angaben und lass den Text vor
-    der Veröffentlichung rechtlich prüfen (z. B. durch eine Anwältin/einen Anwalt oder einen
-    Datenschutz-Generator). Entferne danach diesen Hinweis.
-  </p>
+  {
+    lang === 'de' ? (
+      <p>
+        <strong>Vorlage – keine Rechtsberatung.</strong> Dieser Text ist ein Muster mit{' '}
+        <mark class="placeholder">[Platzhaltern]</mark>. Ergänze deine Angaben und lass den Text vor
+        der Veröffentlichung rechtlich prüfen (z. B. durch eine Anwältin/einen Anwalt oder einen
+        Datenschutz-Generator). Entferne danach diesen Hinweis.
+      </p>
+    ) : (
+      <p>
+        <strong>Template – not legal advice.</strong> This text is a draft with{' '}
+        <mark class="placeholder">[placeholders]</mark>. Fill in your details and have it reviewed
+        before publishing, then remove this notice.
+      </p>
+    )
+  }
 </div>
+{
+  germanHref && (
+    <p class="muted translation-note" lang="en">
+      This is a translation for convenience. The <a href={germanHref} lang="de">German version</a>{' '}
+      is legally binding.
+    </p>
+  )
+}
+
+<style>
+  .translation-note {
+    font-size: 0.92rem;
+  }
+</style>

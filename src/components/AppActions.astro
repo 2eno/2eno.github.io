@@ -9,12 +9,14 @@
  */
 import Icon from './Icon.astro';
 import type { App } from '../lib/content';
+import { t, type Lang } from '../i18n';
 
 export interface Props {
   app: App;
+  lang: Lang;
 }
 
-const { app } = Astro.props;
+const { app, lang } = Astro.props;
 const { playStoreUrl, downloadUrl, repo, status, name } = app.data;
 const onPlay = playStoreUrl && status !== 'coming-soon';
 ---
@@ -25,8 +27,8 @@ const onPlay = playStoreUrl && status !== 'coming-soon';
       <a class="button play" href={playStoreUrl} rel="noopener">
         <Icon name="play" size={20} />
         <span>
-          <small>Jetzt bei</small>
-          Google Play<span class="visually-hidden">: {name} herunterladen</span>
+          <small>{t(lang, 'app.play.on')}</small>
+          Google Play<span class="visually-hidden">: {name} {t(lang, 'app.play.download')}</span>
         </span>
       </a>
     )
@@ -35,7 +37,8 @@ const onPlay = playStoreUrl && status !== 'coming-soon';
     downloadUrl && (
       <a class:list={['button', { secondary: onPlay }]} href={downloadUrl} rel="noopener">
         <Icon name="download" />
-        APK herunterladen<span class="visually-hidden"> ({name}, GitHub Releases)</span>
+        {t(lang, 'app.apk')}
+        <span class="visually-hidden"> ({name}, {t(lang, 'app.apk.sr')})</span>
       </a>
     )
   }
@@ -43,11 +46,16 @@ const onPlay = playStoreUrl && status !== 'coming-soon';
     repo && (
       <a class="button secondary" href={repo} rel="noopener">
         <Icon name="github" />
-        Quellcode<span class="visually-hidden"> von {name} auf GitHub</span>
+        {t(lang, 'app.source')}
+        <span class="visually-hidden"> – {name} {t(lang, 'app.source.sr')}</span>
       </a>
     )
   }
-  {!onPlay && !downloadUrl && <p class="soon">Noch kein öffentlicher Download – {status === 'in-development' ? 'die App ist in Entwicklung.' : 'bald verfügbar.'}</p>}
+  {
+    !onPlay && !downloadUrl && (
+      <p class="soon">{t(lang, status === 'in-development' ? 'app.noDownload.dev' : 'app.noDownload.soon')}</p>
+    )
+  }
 </div>
 
 <style>
